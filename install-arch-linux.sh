@@ -323,9 +323,9 @@ case $profile in
 							keepassxc \
 							libreoffice-fresh \
 							mumble \
+							mpv \
 							obs-studio \
 							syncthing \
-							vlc \
 							wireshark-qt
 		;;
 	*)
