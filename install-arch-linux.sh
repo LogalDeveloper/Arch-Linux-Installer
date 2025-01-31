@@ -325,6 +325,7 @@ case $profile in
 							mumble \
 							mpv \
 							obs-studio \
+							qalculate-gtk \
 							syncthing \
 							wireshark-qt
 		;;
