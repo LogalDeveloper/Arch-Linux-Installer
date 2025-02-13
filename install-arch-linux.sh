@@ -269,6 +269,7 @@ install_base_xfce() {
 						xfce4-pulseaudio-plugin \
 						ristretto \
 						xarchiver \
+						unzip \
 						xreader
     arch-chroot /mnt systemctl enable lightdm.service
 }
