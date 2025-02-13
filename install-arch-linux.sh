@@ -207,6 +207,7 @@ print "Setting up systemd-resolved..."
 arch-chroot /mnt sed -i "s|^#MulticastDNS=yes|MulticastDNS=no|" /etc/systemd/resolved.conf
 arch-chroot /mnt sed -i "s|^#LLMNR=yes|LLMNR=no|" /etc/systemd/resolved.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
+ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
 print "Setting up systemd-networkd..."
 arch-chroot /mnt sh -c "cat > /etc/systemd/network/00-default.network" <<EOF
