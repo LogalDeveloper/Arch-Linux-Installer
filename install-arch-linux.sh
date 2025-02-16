@@ -1,4 +1,4 @@
-c#!/bin/bash
+#!/bin/bash
 
 # Copyright 2025 Logan Fick
 #
