@@ -1,4 +1,4 @@
-#!/bin/bash
+c#!/bin/bash
 
 # Copyright 2025 Logan Fick
 #
@@ -234,6 +234,13 @@ fi
 
 print "Enabling systemd-timesyncd..."
 arch-chroot /mnt systemctl enable systemd-timesyncd.service
+
+# https://wiki.archlinux.org/index.php?title=Sysctl#Enable_BBR
+print "Setting up BBR congestion control..."
+arch-chroot /mnt sh -c "cat > /etc/sysctl.d/10-bbr.conf" <<EOF
+net.core.default_qdisc = cake
+net.ipv4.tcp_congestion_control = bbr
+EOF
 
 install_base_xfce() {
 	arch-chroot /mnt pacman --noconfirm -S	lightdm \
