@@ -330,6 +330,7 @@ case $profile in
 							hunspell-en_us \
 							keepassxc \
 							libreoffice-fresh \
+							liferea \
 							mumble \
 							mpv \
 							obs-studio \
