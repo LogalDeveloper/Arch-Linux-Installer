@@ -320,7 +320,6 @@ case $profile in
 		install_base_xfce
 		arch-chroot /mnt pacman --noconfirm  -S	audacious \
 							audacity \
-							code \
 							element-desktop \
 							ffmpeg \
 							firefox \
