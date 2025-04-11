@@ -35,8 +35,8 @@ else
     exit 1
 fi
 
-print "Updating mirrorlist..."
-reflector --save /etc/pacman.d/mirrorlist --protocol https --country US --sort score
+print "Setting mirrorlist to use private mirror..."
+cat "Server = https://mirrors.logal.dev/archlinux/$repo/os/$arch" > /etc/pacman.d/mirrorlist
 
 # Provide the tip from the Arch Linux Installation Guide regarding optimal logical sector sizes.
 print "Please check the following items before proceding:"
@@ -118,7 +118,6 @@ pacstrap -K /mnt	base \
 			btrfs-progs \
 			htop \
 			nano \
-			reflector \
 			sudo \
 			ufw
 
@@ -178,24 +177,6 @@ arch-chroot /mnt sed -i "s|^# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|
 
 print "Disabling root account..."
 arch-chroot /mnt passwd -l root
-
-print "Configuring reflector..."
-arch-chroot /mnt sh -c "cat > /etc/xdg/reflector/reflector.conf" <<EOF
-# Reflector configuration file for the systemd service.
-#
-# Empty lines and lines beginning with "#" are ignored.  All other lines should
-# contain valid reflector command-line arguments. The lines are parsed with
-# Python's shlex modules so standard shell syntax should work. All arguments are
-# collected into a single argument list.
-#
-# See "reflector --help" for details.
-
---save /etc/pacman.d/mirrorlist
---protocol https
---country US
---sort score
-EOF
-arch-chroot /mnt systemctl enable reflector.timer
 
 print "Please enter the username you'd like to use for your account"
 read username
