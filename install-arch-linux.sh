@@ -36,7 +36,7 @@ else
 fi
 
 print "Setting mirrorlist to use private mirror..."
-cat "Server = https://mirrors.logal.dev/archlinux/$repo/os/$arch" > /etc/pacman.d/mirrorlist
+echo "Server = https://mirrors.logal.dev/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 # Provide the tip from the Arch Linux Installation Guide regarding optimal logical sector sizes.
 print "Please check the following items before proceding:"
