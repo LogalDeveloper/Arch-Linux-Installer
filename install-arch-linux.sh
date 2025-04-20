@@ -119,7 +119,8 @@ pacstrap -K /mnt	base \
 			htop \
 			nano \
 			sudo \
-			ufw
+			ufw \
+			openssh
 
 print "Installing CPU microcode..."
 cpu_vendor=$(grep -m 1 'vendor_id' /proc/cpuinfo | awk '{print $3}')
@@ -215,6 +216,23 @@ fi
 
 print "Enabling systemd-timesyncd..."
 arch-chroot /mnt systemctl enable systemd-timesyncd.service
+
+print "Setting up and enabling OpenSSH server..."
+arch-chroot /mnt sh -c "cat > /etc/ssh/sshd_config" <<EOF
+AllowUsers $username
+AuthenticationMethods publickey,password
+Ciphers aes256-gcm@openssh.com
+Compression no
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKeyAlgorithms ssh-ed25519
+KexAlgorithms mlkem768x25519-sha256
+MACs umac-128-etm@openssh.com
+PermitRootLogin no
+PubkeyAcceptedAlgorithms ssh-ed25519
+Subsystem sftp internal-sftp
+EOF
+arch-chroot /mnt ssh-keygen -t ed25519 -C "" -N "" -f /etc/ssh/ssh_host_ed25519_key
+arch-chroot /mnt systemctl enable sshd.service
 
 # https://wiki.archlinux.org/index.php?title=Sysctl#Enable_BBR
 print "Setting up BBR congestion control..."
@@ -325,3 +343,6 @@ case $profile in
 esac
 
 print "Installation complete!"
+
+print "Public SSH key fingerprint of this host:"
+arch-chroot /mnt ssh-keygen -lvf /etc/ssh/ssh_host_ed25519_key.pub
