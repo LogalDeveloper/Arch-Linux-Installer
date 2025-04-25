@@ -120,7 +120,8 @@ pacstrap -K /mnt	base \
 			nano \
 			sudo \
 			ufw \
-			openssh
+			openssh \
+			usbguard
 
 print "Installing CPU microcode..."
 cpu_vendor=$(grep -m 1 'vendor_id' /proc/cpuinfo | awk '{print $3}')
@@ -342,6 +343,13 @@ case $profile in
 		;;
 esac
 
+print "Please add or remove any USB devices, including the installer drive, to form the standard configuration for this system. USBGuard will be configured to only allow the USB devices connected at the time you press enter to be used; everything else will be blocked."
+print "When ready to proceed, press enter."
+read
+arch-chroot /mnt sh -c "usbguard generate-policy > /etc/usbguard/rules.conf"
+arch-chroot /mnt systemctl enable usbguard.service
+
+echo "\n\n\n\n\n"
 print "Installation complete!"
 
 print "Public SSH key fingerprint of this host:"
