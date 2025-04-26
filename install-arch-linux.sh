@@ -246,6 +246,7 @@ install_base_xfce() {
 	arch-chroot /mnt pacman --noconfirm -S	lightdm \
 						lightdm-gtk-greeter \
 						lightdm-gtk-greeter-settings \
+						papirus-icon-theme \
 						thunar \
 						thunar-archive-plugin \
 						gvfs \
@@ -256,6 +257,8 @@ install_base_xfce() {
 						xfce4-terminal \
 						xfdesktop \
 						xfwm4 \
+						orchis-theme \
+						papirus-icon-theme \
 						xfce4-battery-plugin \
 						xfce4-notifyd \
 						xfce4-whiskermenu-plugin \
@@ -278,6 +281,23 @@ install_base_xfce() {
 						unzip \
 						xreader
     arch-chroot /mnt systemctl enable lightdm.service
+
+    cp -r ./default-home-directory-config /mnt/home/$username/.config
+    chown -R 1000:1000 /mnt/home/$username/.config
+
+arch-chroot /mnt sh -c "cat > /etc/lightdm/lightdm-gtk-greeter.conf" <<EOF
+[greeter]
+hide-user-image = true
+font-name = Noto Sans 10
+clock-format = %A, %B %d, %Y,%l:%M:%S %p
+theme-name = Adwaita-dark
+icon-theme-name = Papirus-Dark
+screensaver-timeout = 10
+user-background = false
+background = #77767b
+indicators = ~host;~spacer;~clock;~spacer;~power
+EOF
+
 }
 
 print "Base install complete. Select profile to install for this system:"
