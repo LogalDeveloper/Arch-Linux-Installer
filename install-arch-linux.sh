@@ -257,7 +257,6 @@ install_base_xfce() {
 						xfdesktop \
 						xfwm4 \
 						xfce4-battery-plugin \
-						xfce4-datetime-plugin \
 						xfce4-notifyd \
 						xfce4-whiskermenu-plugin \
 						xfce4-screensaver \
