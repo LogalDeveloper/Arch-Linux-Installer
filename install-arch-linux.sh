@@ -246,7 +246,6 @@ install_base_xfce() {
 	arch-chroot /mnt pacman --noconfirm -S	lightdm \
 						lightdm-gtk-greeter \
 						lightdm-gtk-greeter-settings \
-						papirus-icon-theme \
 						thunar \
 						thunar-archive-plugin \
 						gvfs \
@@ -257,7 +256,6 @@ install_base_xfce() {
 						xfce4-terminal \
 						xfdesktop \
 						xfwm4 \
-						orchis-theme \
 						papirus-icon-theme \
 						xfce4-battery-plugin \
 						xfce4-notifyd \
