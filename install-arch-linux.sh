@@ -296,6 +296,24 @@ background = #77767b
 indicators = ~host;~spacer;~clock;~spacer;~power
 EOF
 
+    print "Would you like to install graphics drivers? Type 'intel' exactly for Intel graphics drivers, 'nvidia' for NVIDIA graphics drivers, or anything else to skip"
+    read driver
+
+    case $driver in
+        "intel")
+            arch-chroot /mnt pacman --noconfirm -S 	mesa \
+							vulkan-intel \
+							intel-media-driver \
+							libva-intel-driver
+            ;;
+        "nvidia")
+            arch-chroot /mnt pacman --noconfirm -S	mesa \
+							nvidia-open \
+							libva-nvidia-driver
+            ;;
+        *)
+            print "Skipping graphics driver installation."
+    esac
 }
 
 print "Base install complete. Select profile to install for this system:"
