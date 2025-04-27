@@ -295,8 +295,8 @@ background = #77767b
 indicators = ~host;~spacer;~clock;~spacer;~power
 EOF
 
-    mkdir -p /home/$username/.config/systemd/user
-    ln -s /dev/null /home/$username/.config/systemd/user/tumblerd.service
+    mkdir -p /mnt/home/$username/.config/systemd/user
+    ln -s /dev/null /mnt/home/$username/.config/systemd/user/tumblerd.service
 
     chown -R 1000:1000 /mnt/home/$username/.config
 
