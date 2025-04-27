@@ -281,7 +281,6 @@ install_base_xfce() {
     arch-chroot /mnt systemctl enable lightdm.service
 
     cp -r ./default-home-directory-config /mnt/home/$username/.config
-    chown -R 1000:1000 /mnt/home/$username/.config
 
 arch-chroot /mnt sh -c "cat > /etc/lightdm/lightdm-gtk-greeter.conf" <<EOF
 [greeter]
@@ -295,6 +294,11 @@ user-background = false
 background = #77767b
 indicators = ~host;~spacer;~clock;~spacer;~power
 EOF
+
+    mkdir -p /home/$username/.config/systemd/user
+    ln -s /dev/null /home/$username/.config/systemd/user/tumblerd.service
+
+    chown -R 1000:1000 /mnt/home/$username/.config
 
     print "Would you like to install graphics drivers? Type 'intel' exactly for Intel graphics drivers, 'nvidia' for NVIDIA graphics drivers, or anything else to skip"
     read driver
