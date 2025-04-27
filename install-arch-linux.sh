@@ -372,10 +372,10 @@ case $profile in
 							libreoffice-fresh \
 							liferea \
 							mumble \
-							mpv \
 							obs-studio \
 							qalculate-gtk \
 							syncthing \
+							vlc \
 							wireshark-qt
 		;;
 	*)
