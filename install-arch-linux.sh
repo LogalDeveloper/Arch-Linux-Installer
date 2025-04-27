@@ -118,6 +118,7 @@ pacstrap -K /mnt	base \
 			btrfs-progs \
 			htop \
 			nano \
+			less \
 			sudo \
 			ufw \
 			openssh \
