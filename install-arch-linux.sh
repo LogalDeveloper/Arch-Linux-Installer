@@ -328,10 +328,14 @@ print " 2 - Server"
 print "         Adds Restic, Docker, and Docker Compose."
 print " 3 - Minimal Desktop"
 print "         XFCE 4 with no additional applications."
-print " 4 - Basic Desktop"
-print "         XFCE 4 with Firefox as only included desktop application."
-print " 5 - Full Desktop"
-print "         XFCE 4 with a suite of recommended desktop applications."
+print " 4 - Home Theater PC"
+print "         XFCE 4 with Firefox and VLC media player."
+print " 5 - Home Theater PC with Gaming"
+print "         XFCE 4 with Firefox, VLC media playrer, and Dolphin."
+print " 6 - Office Workstation"
+print "         XFCE 4 with a full suite of desktop applications aimed at general office work."
+print " 7 - Software Development Workstation"
+print "         XFCE 4 with a suite of software development applications."
 read profile
 
 case $profile in
@@ -353,10 +357,19 @@ case $profile in
 	"4")
 		install_base_xfce
 		arch-chroot /mnt pacman --noconfirm  -S firefox \
-							firefox-ublock-origin
+							firefox-ublock-origin \
+							vlc
 		;;
 
-	"5")
+        "5")
+                install_base_xfce
+                arch-chroot /mnt pacman --noconfirm  -S dolphin \
+							firefox \
+                                                        firefox-ublock-origin \
+                                                        vlc
+                ;;
+
+	"6")
 		install_base_xfce
 		arch-chroot /mnt pacman --noconfirm  -S	audacious \
 							audacity \
@@ -371,13 +384,43 @@ case $profile in
 							keepassxc \
 							libreoffice-fresh \
 							liferea \
-							mumble \
-							obs-studio \
 							qalculate-gtk \
 							syncthing \
+							torbrowser-launcher \
 							vlc \
 							wireshark-qt
 		;;
+
+        "7")
+                install_base_xfce
+                arch-chroot /mnt pacman --noconfirm  -S audacious \
+                                                        audacity \
+							code \
+							docker \
+							docker-compose \
+                                                        ffmpeg \
+                                                        firefox \
+                                                        firefox-ublock-origin \
+                                                        gimp \
+                                                        git \
+							go \
+                                                        hunspell-en_us \
+							intellij-idea-community-edition \
+							jdk-openjdk \
+                                                        keepassxc \
+                                                        libreoffice-fresh \
+                                                        mumble \
+                                                        obs-studio \
+							pycharm-community-edition \
+							python \
+							python-virtualenv \
+                                                        qalculate-gtk \
+                                                        syncthing \
+							torbrowser-launcher \
+                                                        vlc \
+                                                        wireshark-qt
+                ;;
+
 	*)
 		echo -n "Unknown profile, defaulting to minimal install."
 		;;
