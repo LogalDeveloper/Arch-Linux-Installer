@@ -364,7 +364,7 @@ case $profile in
 
         "5")
                 install_base_xfce
-                arch-chroot /mnt pacman --noconfirm  -S dolphin \
+                arch-chroot /mnt pacman --noconfirm  -S dolphin-emu \
 							firefox \
                                                         firefox-ublock-origin \
                                                         vlc
