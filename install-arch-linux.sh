@@ -107,7 +107,7 @@ mkfs.btrfs --csum xxhash /dev/mapper/cryptroot
 ## Arch Linux Installation Guide Step 1.11 - Mount the file systems
 print "Mounting partitions..."
 mount -o noatime /dev/mapper/cryptroot /mnt
-mount --mkdir ${efi_partition} /mnt/boot
+mount --mkdir -o "fmask=0077,dmask=0077" ${efi_partition} /mnt/boot
 
 ## Arch Linux Installation Guide Step 2.2 - Install essential packages
 print "Installing Arch Linux base..."
