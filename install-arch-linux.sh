@@ -98,7 +98,7 @@ cryptsetup luksFormat --type luks2 --cipher aes-xts-plain64 --hash sha512 --key-
 
 print "Unlocking ${root_partition}..."
 print "Please enter the passphrase you just used to unlock the newly encrypted partition."
-cryptsetup open ${root_partition} cryptroot
+cryptsetup open --allow-discards ${root_partition} cryptroot
 luks_uuid=$(cryptsetup luksDump ${root_partition} | grep 'UUID:' | awk '{print $2}')
 
 print "Formatting /dev/mapper/cryptroot..."
@@ -106,7 +106,7 @@ mkfs.btrfs --csum xxhash /dev/mapper/cryptroot
 
 ## Arch Linux Installation Guide Step 1.11 - Mount the file systems
 print "Mounting partitions..."
-mount -o noatime /dev/mapper/cryptroot /mnt
+mount -o "noatime,discard=async" /dev/mapper/cryptroot /mnt
 mount --mkdir -o "fmask=0077,dmask=0077" ${efi_partition} /mnt/boot
 
 ## Arch Linux Installation Guide Step 2.2 - Install essential packages
@@ -165,16 +165,19 @@ arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options rd.luks.name=${luks_uuid}=cryptroot root=/dev/mapper/cryptroot rootfstype=btrfs
+options rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot rootfstype=btrfs
 EOF
 arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch-fallback.conf" <<EOF
 title   Arch Linux (fallback)
 linux   /vmlinuz-linux
 initrd  /initramfs-linux-fallback.img
-options rd.luks.name=${luks_uuid}=cryptroot root=/dev/mapper/cryptroot rootfstype=btrfs
+options rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot rootfstype=btrfs
 EOF
 
 arch-chroot /mnt sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
+
+print "Enabling fstrim timer..."
+arch-chroot /mnt systemctl enable fstrim.timer
 
 print "Enabling sudo access for wheel group..."
 arch-chroot /mnt sed -i "s|^# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|" /etc/sudoers
