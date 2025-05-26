@@ -201,9 +201,9 @@ arch-chroot /mnt systemctl enable systemd-resolved.service
 ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
 print "Setting up systemd-networkd..."
-arch-chroot /mnt sh -c "cat > /etc/systemd/network/00-default.network" <<EOF
+arch-chroot /mnt sh -c "cat > /etc/systemd/network/50-default-ether.network" <<EOF
 [Match]
-Name=*
+Type=ether
 
 [Link]
 RequiredForOnline=routable
@@ -211,6 +211,35 @@ RequiredForOnline=routable
 [Network]
 DHCP=yes
 IPv6AcceptRA=yes
+EmitLLDP=yes
+
+[DHCPv4]
+RouteMetric=100
+
+[IPv6AcceptRA]
+RouteMetric=100
+EOF
+
+arch-chroot /mnt sh -c "cat > /etc/systemd/network/50-default-wlan.network" <<EOF
+[Match]
+Type=wlan
+WLANInterfaceType=station
+SSID=*
+
+[Link]
+RequiredForOnline=routable
+
+[Network]
+DHCP=yes
+IPv6AcceptRA=yes
+IgnoreCarrierLoss=3s
+EmitLLDP=yes
+
+[DHCPv4]
+RouteMetric=200
+
+[IPv6AcceptRA]
+RouteMetric=200
 EOF
 arch-chroot /mnt systemctl enable systemd-networkd.service
 
