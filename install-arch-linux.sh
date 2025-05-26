@@ -179,6 +179,9 @@ arch-chroot /mnt sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
 print "Enabling fstrim timer..."
 arch-chroot /mnt systemctl enable fstrim.timer
 
+print "Enabling scrub timer..."
+arch-chroot /mnt systemctl enable btrfs-scrub@-.timer
+
 print "Enabling sudo access for wheel group..."
 arch-chroot /mnt sed -i "s|^# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|" /etc/sudoers
 
