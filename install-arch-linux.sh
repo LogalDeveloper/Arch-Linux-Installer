@@ -401,16 +401,13 @@ case $profile in
                 install_base_xfce
                 arch-chroot /mnt pacman --noconfirm  -S dolphin-emu \
 							firefox \
-                                                        firefox-ublock-origin \
-                                                        vlc
+							firefox-ublock-origin \
+							vlc
                 ;;
 
 	"6")
 		install_base_xfce
-		arch-chroot /mnt pacman --noconfirm  -S	audacious \
-							audacity \
-							element-desktop \
-							ffmpeg \
+		arch-chroot /mnt pacman --noconfirm  -S	ffmpeg \
 							firefox \
 							firefox-ublock-origin \
 							gimp \
@@ -419,42 +416,36 @@ case $profile in
 							hunspell-en_us \
 							keepassxc \
 							libreoffice-fresh \
-							liferea \
 							qalculate-gtk \
 							syncthing \
-							torbrowser-launcher \
-							vlc \
-							wireshark-qt
+							tenacity \
+							vlc
 		;;
 
         "7")
                 install_base_xfce
-                arch-chroot /mnt pacman --noconfirm  -S audacious \
-                                                        audacity \
-							code \
+                arch-chroot /mnt pacman --noconfirm  -S code \
 							docker \
 							docker-compose \
-                                                        ffmpeg \
-                                                        firefox \
-                                                        firefox-ublock-origin \
-                                                        gimp \
-                                                        git \
+							ffmpeg \
+							firefox \
+							firefox-ublock-origin \
+							gimp \
+							git \
 							go \
-                                                        hunspell-en_us \
+							hunspell-en_us \
 							intellij-idea-community-edition \
 							jdk-openjdk \
-                                                        keepassxc \
-                                                        libreoffice-fresh \
-                                                        mumble \
-                                                        obs-studio \
+							keepassxc \
+							libreoffice-fresh \
 							pycharm-community-edition \
 							python \
 							python-virtualenv \
-                                                        qalculate-gtk \
-                                                        syncthing \
-							torbrowser-launcher \
-                                                        vlc \
-                                                        wireshark-qt
+							qalculate-gtk \
+							syncthing \
+							tenacity \
+							vlc \
+							wireshark-qt
                 ;;
 
 	*)
