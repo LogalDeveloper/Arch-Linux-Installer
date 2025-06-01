@@ -312,6 +312,8 @@ install_base_xfce() {
 						pavucontrol \
 						xfce4-pulseaudio-plugin \
 						ristretto \
+						webp-pixbuf-loader \
+						libopenraw \
 						xarchiver \
 						unzip \
 						xreader
