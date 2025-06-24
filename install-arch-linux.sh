@@ -131,10 +131,10 @@ print "Installing CPU microcode..."
 cpu_vendor=$(grep -m 1 'vendor_id' /proc/cpuinfo | awk '{print $3}')
 if [[ "${cpu_vendor}" == "GenuineIntel" ]]; then
    arch-chroot /mnt pacman --noconfirm -S intel-ucode
-elif [[ "{$cpu_vendor}" == "AuthenticAMD" ]]; then
+elif [[ "${cpu_vendor}" == "AuthenticAMD" ]]; then
     arch-chroot /mnt pacman --noconfirm -S amd-ucode 
 else
-    echo "Unknown CPU vendor: {$cpu_vendor}. Please install microcode manually after installation, if available."
+    echo "Unknown CPU vendor: ${cpu_vendor}. Please install microcode manually after installation, if available."
 fi
 
 ## Arch Linux Installation Guide Step 3.1 - Fstab
