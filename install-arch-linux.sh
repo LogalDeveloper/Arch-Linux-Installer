@@ -121,6 +121,7 @@ pacstrap -K /mnt	base \
 			htop \
 			nano \
 			less \
+			tmux \
 			sudo \
 			ufw \
 			openssh \
