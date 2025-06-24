@@ -117,6 +117,7 @@ pacstrap -K /mnt	base \
 			bash-completion \
 			btrfs-progs \
 			man-db \
+			btop \
 			htop \
 			nano \
 			less \
