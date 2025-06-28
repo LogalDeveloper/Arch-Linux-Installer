@@ -317,7 +317,7 @@ install_base_xfce() {
 						webp-pixbuf-loader \
 						libopenraw \
 						xarchiver \
-						unzip \
+						7zip \
 						xreader
     arch-chroot /mnt systemctl enable lightdm.service
 
