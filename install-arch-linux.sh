@@ -274,10 +274,8 @@ EOF
 arch-chroot /mnt ssh-keygen -t ed25519 -C "" -N "" -f /etc/ssh/ssh_host_ed25519_key
 arch-chroot /mnt systemctl enable sshd.service
 
-# https://wiki.archlinux.org/index.php?title=Sysctl#Enable_BBR
 print "Setting up BBR congestion control..."
-arch-chroot /mnt sh -c "cat > /etc/sysctl.d/10-bbr.conf" <<EOF
-net.core.default_qdisc = cake
+arch-chroot /mnt sh -c "cat > /etc/sysctl.d/70-bbr.conf" <<EOF
 net.ipv4.tcp_congestion_control = bbr
 EOF
 
