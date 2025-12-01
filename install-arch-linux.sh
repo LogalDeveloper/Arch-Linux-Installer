@@ -396,7 +396,8 @@ case $profile in
 		install_base_xfce
 		arch-chroot /mnt pacman --noconfirm  -S firefox \
 							firefox-ublock-origin \
-							vlc
+							vlc \
+							vlc-plugin-ffmpeg
 		;;
 
         "5")
@@ -404,7 +405,8 @@ case $profile in
                 arch-chroot /mnt pacman --noconfirm  -S dolphin-emu \
 							firefox \
 							firefox-ublock-origin \
-							vlc
+							vlc \
+							vlc-plugin-ffmpeg
                 ;;
 
 	"6")
@@ -421,7 +423,8 @@ case $profile in
 							qalculate-gtk \
 							syncthing \
 							tenacity \
-							vlc
+							vlc \
+							vlc-plugin-ffmpeg
 		;;
 
         "7")
@@ -447,6 +450,7 @@ case $profile in
 							syncthing \
 							tenacity \
 							vlc \
+							vlc-plugin-ffmpeg \
 							wireshark-qt
                 ;;
 
