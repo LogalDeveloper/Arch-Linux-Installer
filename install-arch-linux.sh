@@ -155,7 +155,7 @@ print "Your keymap is probably 'us' and the time zone is probably 'America/New_Y
 arch-chroot /mnt systemd-firstboot --prompt
 
 ## Arch Linux Installation Guide Step 3.6 - Initramfs
-default_mkinitcpio_line="HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)"
+default_mkinitcpio_line="HOOKS=(base systemd autodetect microcode modconf kms keyboard keymap sd-vconsole block filesystems fsck)"
 new_mkinitcpio_line="HOOKS=(systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)"
 arch-chroot /mnt sed -i "s|^${default_mkinitcpio_line}|${new_mkinitcpio_line}|" /etc/mkinitcpio.conf
 arch-chroot /mnt mkinitcpio -P
@@ -167,12 +167,6 @@ arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot rootfstype=btrfs
-EOF
-arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch-fallback.conf" <<EOF
-title   Arch Linux (fallback)
-linux   /vmlinuz-linux
-initrd  /initramfs-linux-fallback.img
 options rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot rootfstype=btrfs
 EOF
 
