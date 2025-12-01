@@ -273,6 +273,11 @@ arch-chroot /mnt sh -c "cat > /etc/sysctl.d/70-bbr.conf" <<EOF
 net.ipv4.tcp_congestion_control = bbr
 EOF
 
+print "Adding LogalNet Internal Certification Authority to system CA store..."
+cp ./logalnet-internal-ca.crt /mnt
+arch-chroot /mnt trust anchor --store /logalnet-internal-ca.crt
+arch-chroot /mnt rm /logalnet-internal-ca.crt
+
 install_base_xfce() {
 	arch-chroot /mnt pacman --noconfirm -S	lightdm \
 						lightdm-gtk-greeter \
