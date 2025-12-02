@@ -101,12 +101,36 @@ print "Please enter the passphrase you just used to unlock the newly encrypted p
 cryptsetup open --allow-discards ${root_partition} cryptroot
 luks_uuid=$(cryptsetup luksDump ${root_partition} | grep 'UUID:' | awk '{print $2}')
 
-print "Formatting /dev/mapper/cryptroot..."
-mkfs.btrfs --csum xxhash /dev/mapper/cryptroot
+print "What file system would you like for the root partition?"
+print " btrfs (Recommended)"
+print " ext4"
+read filesystem
+
+case $filesystem in
+	"ext4")
+		print "Formatting /dev/mapper/cryptroot as ext4..."
+		mkfs.ext4 /dev/mapper/cryptroot
+		;;
+
+	*)
+		print "Formatting /dev/mapper/cryptroot as btrfs..."
+		mkfs.btrfs --csum xxhash /dev/mapper/cryptroot
+		;;
+esac
 
 ## Arch Linux Installation Guide Step 1.11 - Mount the file systems
 print "Mounting partitions..."
-mount -o "noatime,discard=async" /dev/mapper/cryptroot /mnt
+
+case $filesystem in
+	"ext4")
+		mount -o "noatime,discard" /dev/mapper/cryptroot /mnt
+		;;
+
+	*)
+		mount -o "noatime,discard=async" /dev/mapper/cryptroot /mnt
+		;;
+esac
+
 mount --mkdir -o "fmask=0077,dmask=0077" ${efi_partition} /mnt/boot
 
 ## Arch Linux Installation Guide Step 2.2 - Install essential packages
@@ -167,7 +191,7 @@ arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot rootfstype=btrfs
+options rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot
 EOF
 
 arch-chroot /mnt sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
@@ -175,8 +199,10 @@ arch-chroot /mnt sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
 print "Enabling fstrim timer..."
 arch-chroot /mnt systemctl enable fstrim.timer
 
-print "Enabling scrub timer..."
-arch-chroot /mnt systemctl enable btrfs-scrub@-.timer
+if [ "$filesystem" = "btrfs" ]; then
+	print "Enabling scrub timer..."
+	arch-chroot /mnt systemctl enable btrfs-scrub@-.timer
+fi
 
 print "Enabling sudo access for wheel group..."
 arch-chroot /mnt sed -i "s|^# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|" /etc/sudoers
