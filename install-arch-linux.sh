@@ -123,7 +123,7 @@ pacstrap -K /mnt	base \
 			less \
 			tmux \
 			sudo \
-			ufw \
+			iptables-nft \
 			openssh \
 			usbguard
 
@@ -190,6 +190,9 @@ arch-chroot /mnt useradd -m -G wheel $username
 print "Please set the password for your new account."
 arch-chroot /mnt passwd $username
 
+print "Installing default configuration files..."
+cp -r ./etc /mnt
+
 print "Setting up systemd-resolved..."
 arch-chroot /mnt sed -i "s|^#MulticastDNS=yes|MulticastDNS=no|" /etc/systemd/resolved.conf
 arch-chroot /mnt sed -i "s|^#LLMNR=yes|LLMNR=no|" /etc/systemd/resolved.conf
@@ -238,6 +241,9 @@ RouteMetric=200
 RouteMetric=200
 EOF
 arch-chroot /mnt systemctl enable systemd-networkd.service
+
+print "Enabling nftables firewall..."
+arch-chroot /mnt systemctl enable nftables.service
 
 print "Would you like to install iwd for Wi-Fi support? Enter 'y' exactly for yes, otherwise anything else to skip."
 read install_iwd
