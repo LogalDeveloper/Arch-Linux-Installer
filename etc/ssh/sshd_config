@@ -1,0 +1,11 @@
+AllowUsers PLACEHOLDER
+AuthenticationMethods publickey,password
+Ciphers aes256-gcm@openssh.com
+Compression no
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKeyAlgorithms ssh-ed25519
+KexAlgorithms mlkem768x25519-sha256
+MACs umac-128-etm@openssh.com
+PermitRootLogin no
+PubkeyAcceptedAlgorithms ssh-ed25519
+Subsystem sftp internal-sftp

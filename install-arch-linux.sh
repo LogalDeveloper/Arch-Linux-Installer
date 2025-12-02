@@ -139,7 +139,7 @@ fi
 
 ## Arch Linux Installation Guide Step 3.1 - Fstab
 print "Generating /etc/fstab..."
-genfstab -U /mnt >>/mnt/etc/fstab
+genfstab -U /mnt >> /mnt/etc/fstab
 
 ## Arch Linux Installation Guide Step 3.4 - Localization
 print "Setting up locale..."
@@ -193,54 +193,15 @@ arch-chroot /mnt passwd $username
 print "Installing default configuration files..."
 cp -r ./etc /mnt
 
-print "Setting up systemd-resolved..."
-arch-chroot /mnt sed -i "s|^#MulticastDNS=yes|MulticastDNS=no|" /etc/systemd/resolved.conf
-arch-chroot /mnt sed -i "s|^#LLMNR=yes|LLMNR=no|" /etc/systemd/resolved.conf
+print "Enabling systemd-resolved..."
 arch-chroot /mnt systemctl enable systemd-resolved.service
 ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
-print "Setting up systemd-networkd..."
-arch-chroot /mnt sh -c "cat > /etc/systemd/network/50-default-ether.network" <<EOF
-[Match]
-Type=ether
-
-[Link]
-RequiredForOnline=routable
-
-[Network]
-DHCP=yes
-IPv6AcceptRA=yes
-EmitLLDP=yes
-
-[DHCPv4]
-RouteMetric=100
-
-[IPv6AcceptRA]
-RouteMetric=100
-EOF
-
-arch-chroot /mnt sh -c "cat > /etc/systemd/network/50-default-wlan.network" <<EOF
-[Match]
-Type=wlan
-WLANInterfaceType=station
-SSID=*
-
-[Link]
-RequiredForOnline=routable
-
-[Network]
-DHCP=yes
-IPv6AcceptRA=yes
-IgnoreCarrierLoss=3s
-EmitLLDP=yes
-
-[DHCPv4]
-RouteMetric=200
-
-[IPv6AcceptRA]
-RouteMetric=200
-EOF
+print "Enabling systemd-networkd..."
 arch-chroot /mnt systemctl enable systemd-networkd.service
+
+print "Enabling systemd-timesyncd..."
+arch-chroot /mnt systemctl enable systemd-timesyncd.service
 
 print "Enabling nftables firewall..."
 arch-chroot /mnt systemctl enable nftables.service
@@ -250,34 +211,14 @@ read install_iwd
 
 if [ "$install_iwd" == "y" ]; then
 	print "Installing iwd..."
-    arch-chroot /mnt pacman --noconfirm -S iwd
+	arch-chroot /mnt pacman --noconfirm -S iwd
 	arch-chroot /mnt systemctl enable iwd.service
 fi
 
-print "Enabling systemd-timesyncd..."
-arch-chroot /mnt systemctl enable systemd-timesyncd.service
-
 print "Setting up and enabling OpenSSH server..."
-arch-chroot /mnt sh -c "cat > /etc/ssh/sshd_config" <<EOF
-AllowUsers $username
-AuthenticationMethods publickey,password
-Ciphers aes256-gcm@openssh.com
-Compression no
-HostKey /etc/ssh/ssh_host_ed25519_key
-HostKeyAlgorithms ssh-ed25519
-KexAlgorithms mlkem768x25519-sha256
-MACs umac-128-etm@openssh.com
-PermitRootLogin no
-PubkeyAcceptedAlgorithms ssh-ed25519
-Subsystem sftp internal-sftp
-EOF
+arch-chroot /mnt sed -i "s|PLACEHOLDER|${username}|" /etc/ssh/sshd_config
 arch-chroot /mnt ssh-keygen -t ed25519 -C "" -N "" -f /etc/ssh/ssh_host_ed25519_key
 arch-chroot /mnt systemctl enable sshd.service
-
-print "Setting up BBR congestion control..."
-arch-chroot /mnt sh -c "cat > /etc/sysctl.d/70-bbr.conf" <<EOF
-net.ipv4.tcp_congestion_control = bbr
-EOF
 
 print "Adding LogalNet Internal Certification Authority to system CA store..."
 cp ./logalnet-internal-ca.crt /mnt
@@ -374,7 +315,7 @@ print "         XFCE 4 with no additional applications."
 print " 4 - Home Theater PC"
 print "         XFCE 4 with Firefox and VLC media player."
 print " 5 - Home Theater PC with Gaming"
-print "         XFCE 4 with Firefox, VLC media playrer, and Dolphin."
+print "         XFCE 4 with Firefox, VLC media player, and Dolphin."
 print " 6 - Office Workstation"
 print "         XFCE 4 with a full suite of desktop applications aimed at general office work."
 print " 7 - Software Development Workstation"
