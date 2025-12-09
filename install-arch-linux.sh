@@ -339,9 +339,9 @@ print "         Adds Restic, Docker, and Docker Compose."
 print " 3 - Minimal Desktop"
 print "         XFCE 4 with no additional applications."
 print " 4 - Home Theater PC"
-print "         XFCE 4 with Firefox and VLC media player."
+print "         XFCE 4 with Chromium and VLC media player."
 print " 5 - Home Theater PC with Gaming"
-print "         XFCE 4 with Firefox, VLC media player, and Dolphin."
+print "         XFCE 4 with Chromium, VLC media player, and Dolphin."
 print " 6 - Office Workstation"
 print "         XFCE 4 with a full suite of desktop applications aimed at general office work."
 print " 7 - Software Development Workstation"
@@ -366,8 +366,7 @@ case $profile in
 
 	"4")
 		install_base_xfce
-		arch-chroot /mnt pacman --noconfirm  -S firefox \
-							firefox-ublock-origin \
+		arch-chroot /mnt pacman --noconfirm  -S chromium \
 							vlc \
 							vlc-plugin-ffmpeg
 		;;
@@ -375,8 +374,7 @@ case $profile in
         "5")
                 install_base_xfce
                 arch-chroot /mnt pacman --noconfirm  -S dolphin-emu \
-							firefox \
-							firefox-ublock-origin \
+							chromium \
 							vlc \
 							vlc-plugin-ffmpeg
                 ;;
@@ -384,8 +382,7 @@ case $profile in
 	"6")
 		install_base_xfce
 		arch-chroot /mnt pacman --noconfirm  -S	ffmpeg \
-							firefox \
-							firefox-ublock-origin \
+							chromium \
 							gimp \
 							git \
 							gnucash \
@@ -405,8 +402,7 @@ case $profile in
 							docker \
 							docker-compose \
 							ffmpeg \
-							firefox \
-							firefox-ublock-origin \
+							chromium \
 							gimp \
 							git \
 							go \
