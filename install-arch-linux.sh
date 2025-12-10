@@ -146,6 +146,7 @@ pacstrap -K /mnt	base \
 			nano \
 			less \
 			tmux \
+			rsync \
 			sudo \
 			iptables-nft \
 			openssh \
