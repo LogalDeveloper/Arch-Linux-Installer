@@ -140,6 +140,7 @@ pacstrap -K /mnt	base \
 			linux-firmware \
 			bash-completion \
 			btrfs-progs \
+			ethtool \
 			man-db \
 			btop \
 			htop \
