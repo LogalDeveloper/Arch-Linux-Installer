@@ -140,6 +140,7 @@ pacstrap -K /mnt	base \
 			linux-firmware \
 			bash-completion \
 			btrfs-progs \
+			smartmontools \
 			ethtool \
 			man-db \
 			btop \
@@ -233,6 +234,9 @@ arch-chroot /mnt systemctl enable systemd-timesyncd.service
 
 print "Enabling nftables firewall..."
 arch-chroot /mnt systemctl enable nftables.service
+
+print "Enabling smartd..."
+arch-chroot /mnt systemctl enable smartd.service
 
 print "Would you like to install iwd for Wi-Fi support? Enter 'y' exactly for yes, otherwise anything else to skip."
 read install_iwd
