@@ -142,6 +142,7 @@ pacstrap -K /mnt	base \
 			btrfs-progs \
 			smartmontools \
 			ethtool \
+			lm_sensors \
 			man-db \
 			btop \
 			htop \
