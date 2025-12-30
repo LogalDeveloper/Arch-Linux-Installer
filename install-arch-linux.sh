@@ -44,31 +44,105 @@ print " - If you intend to use an Advanced Format (e.g. NVMe) drive, verify the 
 print "If you need to go back, press Ctrl+C. Otherwise, press enter to continue."
 read
 
+print "Select storage and filesystem configuration:"
+print " 1 - ext4 (Single disk)"
+print " 2 - BTRFS (Single disk) [Recommended over ext4]"
+print " 3 - BTRFS DUP (Single disk with duplicate data and metadata)"
+print " 4 - BTRFS RAID1 (Two disks with full redundancy)"
+read storage_choice
+
+case $storage_choice in
+	"1")
+		storage_mode="single"
+		filesystem="ext4"
+		print "ext4 on single disk selected."
+		;;
+	"3")
+		storage_mode="single"
+		filesystem="btrfs-dup"
+		print "BTRFS dup mode selected. Data and metadata will be duplicated on the same disk."
+		;;
+	"4")
+		storage_mode="raid1"
+		filesystem="btrfs"
+		print "BTRFS RAID1 mode selected. You will need two disks of similar size."
+		;;
+	*)
+		storage_mode="single"
+		filesystem="btrfs"
+		print "BTRFS on single disk selected."
+		;;
+esac
+
 ## Arch Linux Installation Guide Step 1.9 - Partition the disks
 # Provide the user a listing of the disks and ask them which they'd like to install to.
 fdisk -l
-print "Disk information from 'fdisk -l' is provided above. Please enter the path to the disk you would like to install Arch Linux to (e.g. /dev/sda)."
-read install_disk
-print "Please confirm your selection by entering the same path again."
-read disk_confirm
 
-if [ "$install_disk" != "$disk_confirm" ]; then
-    print "The same disk was not entered both times. Exiting..."
-    exit 1
+if [ "$storage_mode" = "raid1" ]; then
+	print "Disk information from 'fdisk -l' is provided above. Please enter the path to the FIRST disk for RAID1 (e.g. /dev/sda)."
+	read install_disk
+	print "Please confirm your selection by entering the same path again."
+	read disk_confirm
+
+	if [ "$install_disk" != "$disk_confirm" ]; then
+		print "The same disk was not entered both times. Exiting..."
+		exit 1
+	fi
+
+	print "Now enter the path to the SECOND disk for RAID1 (e.g. /dev/sdb). This must be a DIFFERENT disk."
+	read install_disk_2
+	print "Please confirm your selection by entering the same path again."
+	read disk_confirm_2
+
+	if [ "$install_disk_2" != "$disk_confirm_2" ]; then
+		print "The same disk was not entered both times. Exiting..."
+		exit 1
+	fi
+
+	if [ "$install_disk" = "$install_disk_2" ]; then
+		print "Error: Both disks must be different. You entered the same disk twice. Exiting..."
+		exit 1
+	fi
+
+	# Final confirmation for RAID1
+	print "Last warning: Are you sure you want to install Arch Linux in RAID1 mode to '$install_disk' and '$install_disk_2'? All data on BOTH disks will be wiped. Enter 'I am sure' exactly to confirm, or anything else to cancel."
+	read final_confirmation
+
+	if [ "$final_confirmation" != "I am sure" ]; then
+		print "Confirmation failed. Exiting..."
+		exit 1
+	fi
+else
+	# Single disk mode
+	print "Disk information from 'fdisk -l' is provided above. Please enter the path to the disk you would like to install Arch Linux to (e.g. /dev/sda)."
+	read install_disk
+	print "Please confirm your selection by entering the same path again."
+	read disk_confirm
+
+	if [ "$install_disk" != "$disk_confirm" ]; then
+		print "The same disk was not entered both times. Exiting..."
+		exit 1
+	fi
+
+	# Triple check the user wants to continue installing to install disk.
+	print "Last warning: Are you sure you want to install Arch Linux to '$install_disk'? All data on this disk will be wiped. Enter 'I am sure' exactly to confirm, or anything else to cancel."
+	read final_confirmation
+
+	if [ "$final_confirmation" != "I am sure" ]; then
+		print "Confirmation failed. Exiting..."
+		exit 1
+	fi
 fi
 
-# Triple check the user wants to continue installing to install disk.
-print "Last warning: Are you sure you want to install Arch Linux to '$install_disk'? All data on this disk will be wiped. Enter 'I am sure' exactly to confirm, or anything else to cancel."
-read final_confirmation
-
-if [ "$final_confirmation" != "I am sure" ]; then
-    print "Confirmation failed. Exiting..."
-    exit 1
+# Wipe all previous file systems from the install disk(s).
+if [ "$storage_mode" = "raid1" ]; then
+	print "Wiping existing partition tables from $install_disk and $install_disk_2..."
+	wipefs -a $install_disk
+	wipefs -a $install_disk_2
+else
+	print "Wiping existing partition table from $install_disk..."
+	wipefs -a $install_disk
 fi
-
-# Wipe all previous file systems from the install disk.
-print "Wiping existing partition table from $install_disk..."
-wipefs -a $install_disk
 
 # Partition install disk.
 print "Partitioning $install_disk..."
@@ -79,42 +153,105 @@ sgdisk --type-code 2:8309 $install_disk # Mark it as Linux LUKS
 
 # /dev/nvme has an extra charater to identify partition number.
 if [[ $install_disk == /dev/nvme* ]]; then
-    # Use "p" in the partition paths for NVMe drives.
-    partition_prefix="${install_disk}p"
+	# Use "p" in the partition paths for NVMe drives.
+	partition_prefix="${install_disk}p"
 else
-    # Use just numbers for other drives.
-    partition_prefix="${install_disk}"
+	# Use just numbers for other drives.
+	partition_prefix="${install_disk}"
 fi
 efi_partition=${partition_prefix}1
 root_partition=${partition_prefix}2
+
+if [ "$storage_mode" = "raid1" ]; then
+	print "Partitioning $install_disk_2..."
+	sgdisk --new 1:0:1G $install_disk_2
+	sgdisk --typecode 1:ef00 $install_disk_2
+	sgdisk --new 2:0:0 $install_disk_2
+	sgdisk --type-code 2:8309 $install_disk_2
+
+	# Handle NVMe naming for second disk
+	if [[ $install_disk_2 == /dev/nvme* ]]; then
+		partition_prefix_2="${install_disk_2}p"
+	else
+		partition_prefix_2="${install_disk_2}"
+	fi
+	efi_partition_2=${partition_prefix_2}1
+	root_partition_2=${partition_prefix_2}2
+fi
 
 ## Arch Linux Installation Guide Step 1.10 - Format the partitions
 print "Formatting ${efi_partition} as FAT32..."
 mkfs.fat -F 32 ${efi_partition}
 
+if [ "$storage_mode" = "raid1" ]; then
+	print "Formatting ${efi_partition_2} as FAT32..."
+	mkfs.fat -F 32 ${efi_partition_2}
+fi
+
+print "Setting up disk encryption..."
+if [ "$storage_mode" = "raid1" ]; then
+	print "Please enter your desired encryption passphrase. This will be used for both disks."
+else
+	print "Please enter your desired encryption passphrase."
+fi
+read -s encryption_password
+echo
+print "Please confirm your encryption passphrase."
+read -s encryption_password_confirm
+echo
+
+if [ "$encryption_password" != "$encryption_password_confirm" ]; then
+	print "Passphrases do not match. Exiting..."
+	exit 1
+fi
+
 print "Setting up encryption on ${root_partition}..."
-print "Please follow the cryptsetup prompts to enter your desired encryption passphrase."
-cryptsetup luksFormat --type luks2 --cipher aes-xts-plain64 --hash sha512 --key-size 512 --pbkdf argon2id --pbkdf-force-iterations 8 --pbkdf-memory 4194304 --pbkdf-parallel 4 --use-urandom ${root_partition}
+echo -n "$encryption_password" | cryptsetup luksFormat --type luks2 --cipher aes-xts-plain64 --hash sha512 --key-size 512 --pbkdf argon2id --pbkdf-force-iterations 8 --pbkdf-memory 4194304 --pbkdf-parallel 4 --use-urandom --key-file - ${root_partition}
 
 print "Unlocking ${root_partition}..."
-print "Please enter the passphrase you just used to unlock the newly encrypted partition."
-cryptsetup open --allow-discards ${root_partition} cryptroot
+if [ "$storage_mode" = "raid1" ]; then
+	echo -n "$encryption_password" | cryptsetup open --allow-discards --key-file - ${root_partition} cryptroot-primary
+else
+	echo -n "$encryption_password" | cryptsetup open --allow-discards --key-file - ${root_partition} cryptroot
+fi
 luks_uuid=$(cryptsetup luksDump ${root_partition} | grep 'UUID:' | awk '{print $2}')
 
-print "What file system would you like for the root partition?"
-print " btrfs (Recommended)"
-print " ext4"
-read filesystem
+if [ "$storage_mode" = "raid1" ]; then
+	print "Setting up encryption on ${root_partition_2}..."
+	echo -n "$encryption_password" | cryptsetup luksFormat --type luks2 --cipher aes-xts-plain64 --hash sha512 --key-size 512 --pbkdf argon2id --pbkdf-force-iterations 8 --pbkdf-memory 4194304 --pbkdf-parallel 4 --use-urandom --key-file - ${root_partition_2}
+
+	print "Unlocking ${root_partition_2}..."
+	echo -n "$encryption_password" | cryptsetup open --allow-discards --key-file - ${root_partition_2} cryptroot-secondary
+	luks_uuid_2=$(cryptsetup luksDump ${root_partition_2} | grep 'UUID:' | awk '{print $2}')
+fi
+
+# Clear the password from memory
+unset encryption_password
+unset encryption_password_confirm
 
 case $filesystem in
 	"ext4")
+		if [ "$storage_mode" = "raid1" ]; then
+			print "Error: ext4 cannot be used with RAID1. Exiting..."
+			exit 1
+		fi
 		print "Formatting /dev/mapper/cryptroot as ext4..."
 		mkfs.ext4 /dev/mapper/cryptroot
 		;;
 
+	"btrfs-dup")
+		print "Formatting /dev/mapper/cryptroot as btrfs with dup profile..."
+		mkfs.btrfs --csum xxhash --data dup --metadata dup /dev/mapper/cryptroot
+		;;
+
 	*)
-		print "Formatting /dev/mapper/cryptroot as btrfs..."
-		mkfs.btrfs --csum xxhash /dev/mapper/cryptroot
+		if [ "$storage_mode" = "raid1" ]; then
+			print "Formatting /dev/mapper/cryptroot-primary and /dev/mapper/cryptroot-secondary as btrfs RAID1..."
+			mkfs.btrfs --csum xxhash --data raid1 --metadata raid1 /dev/mapper/cryptroot-primary /dev/mapper/cryptroot-secondary
+		else
+			print "Formatting /dev/mapper/cryptroot as btrfs..."
+			mkfs.btrfs --csum xxhash /dev/mapper/cryptroot
+		fi
 		;;
 esac
 
@@ -127,7 +264,11 @@ case $filesystem in
 		;;
 
 	*)
-		mount -o "noatime,discard=async" /dev/mapper/cryptroot /mnt
+		if [ "$storage_mode" = "raid1" ]; then
+			mount -o "noatime,discard=async" /dev/mapper/cryptroot-primary /mnt
+		else
+			mount -o "noatime,discard=async" /dev/mapper/cryptroot /mnt
+		fi
 		;;
 esac
 
@@ -190,19 +331,31 @@ arch-chroot /mnt mkinitcpio -P
 ## Arch Linux Installation Guide Step 3.8 - Boot loader
 print "Installing bootloader..."
 arch-chroot /mnt bootctl install
-arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
+
+if [ "$storage_mode" = "raid1" ]; then
+	# RAID1 mode: Must unlock both LUKS devices at boot
+	arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
+options rd.luks.name=${luks_uuid}=cryptroot-primary rd.luks.name=${luks_uuid_2}=cryptroot-secondary rd.luks.options=${luks_uuid}=discard rd.luks.options=${luks_uuid_2}=discard root=/dev/mapper/cryptroot-primary
+EOF
+else
+	# Single disk mode (original)
+	arch-chroot /mnt sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
 options rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot
 EOF
+fi
 
 arch-chroot /mnt sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
 
 print "Enabling fstrim timer..."
 arch-chroot /mnt systemctl enable fstrim.timer
 
-if [ "$filesystem" = "btrfs" ]; then
+if [ "$filesystem" = "btrfs" ] || [ "$filesystem" = "btrfs-dup" ]; then
 	print "Enabling scrub timer..."
 	arch-chroot /mnt systemctl enable btrfs-scrub@-.timer
 fi
