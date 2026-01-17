@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Copyright 2026 Logan Fick
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# security.sh - Security hardening functions
+#
+# Applies security hardening to the installed system:
+# - Configures mkinitcpio with sd-encrypt hook for LUKS
+# - Enables sudo access for wheel group
+# - Disables root account login
+# - Enables nftables firewall, smartd, and fstrim timer
+# - Configures OpenSSH with restricted settings
+# - Installs custom CA certificate to system trust store
+# - Sets up USBGuard to whitelist connected devices
+
+# Configure mkinitcpio hooks for encrypted root
+configure_initramfs() {
+    print "Configuring initramfs..."
+
+    local default_line="HOOKS=(base systemd autodetect microcode modconf kms keyboard keymap sd-vconsole block filesystems fsck)"
+    local new_line="HOOKS=(systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)"
+
+    chroot_run sed -i "s|^${default_line}|${new_line}|" /etc/mkinitcpio.conf
+    run_visible_cmd chroot_run mkinitcpio -P
+}
+
+# Enable fstrim timer for SSD maintenance
+enable_fstrim() {
+    print "Enabling fstrim timer..."
+    chroot_enable fstrim.timer
+}
+
+# Enable BTRFS scrub timer
+# Arguments:
+#   $1 - filesystem type
+enable_btrfs_scrub() {
+    local filesystem="$1"
+
+    if [ "$filesystem" = "btrfs" ] || [ "$filesystem" = "btrfs-dup" ]; then
+        print "Enabling btrfs scrub timer..."
+        chroot_enable btrfs-scrub@-.timer
+    fi
+}
+
+# Configure sudo access for wheel group
+configure_sudo() {
+    print "Enabling sudo access for wheel group..."
+    chroot_run sed -i "s|^# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|" /etc/sudoers
+}
+
+# Disable root account login
+disable_root() {
+    print "Disabling root account..."
+    chroot_run passwd -l root
+}
+
+# Enable nftables firewall
+enable_firewall() {
+    print "Enabling nftables firewall..."
+    chroot_enable nftables.service
+}
+
+# Enable smartd for drive monitoring
+enable_smartd() {
+    print "Enabling smartd..."
+    chroot_enable smartd.service
+}
+
+# Configure SSH server
+# Arguments:
+#   $1 - username to allow SSH access
+configure_ssh() {
+    local username="$1"
+
+    print "Setting up and enabling OpenSSH server..."
+
+    chroot_run sed -i "s|PLACEHOLDER|${username}|" /etc/ssh/sshd_config
+    run_visible_cmd chroot_run ssh-keygen -t ed25519 -C "" -N "" -f /etc/ssh/ssh_host_ed25519_key
+    chroot_enable sshd.service
+}
+
+# Display SSH host key fingerprint
+show_ssh_fingerprint() {
+    print "Public SSH key fingerprint of this host:"
+    run_visible_cmd chroot_run ssh-keygen -lvf /etc/ssh/ssh_host_ed25519_key.pub
+}
+
+# Install custom CA certificate
+install_ca_certificate() {
+    print "Adding LogalNet Internal Certification Authority to system CA store..."
+
+    cp "${CA_CERT_PATH}" "${MOUNT_POINT}"
+    chroot_run trust anchor --store /logalnet-internal-ca.crt
+    chroot_run rm /logalnet-internal-ca.crt
+}
+
+# Configure USBGuard
+configure_usbguard() {
+    print "Please add or remove any USB devices, including the installer drive, to form the standard configuration for this system. USBGuard will be configured to only allow the USB devices connected at the time you press enter to be used; everything else will be blocked."
+    print "When ready to proceed, press enter."
+    read -r
+
+    chroot_run sh -c "usbguard generate-policy > /etc/usbguard/rules.conf"
+    chroot_enable usbguard.service
+}
+
+# Full security setup
+# Arguments:
+#   $1 - filesystem type
+setup_security() {
+    local filesystem="$1"
+
+    configure_sudo
+    disable_root
+    enable_firewall
+    enable_smartd
+    enable_fstrim
+    enable_btrfs_scrub "$filesystem"
+}
