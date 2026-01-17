@@ -22,7 +22,7 @@
 # - Disables root account login
 # - Enables nftables firewall, smartd, and fstrim timer
 # - Configures OpenSSH with restricted settings
-# - Installs custom CA certificate to system trust store
+# - Installs custom CA certificates from certs directory to system trust store
 # - Sets up USBGuard to whitelist connected devices
 
 # Configure mkinitcpio hooks for encrypted root
@@ -78,13 +78,24 @@ show_ssh_fingerprint() {
     run_visible_cmd chroot_run ssh-keygen -lvf /etc/ssh/ssh_host_ed25519_key.pub
 }
 
-# Install custom CA certificate
-install_ca_certificate() {
-    print "Adding LogalNet Internal Certification Authority to system CA store..."
+# Install custom CA certificates from certs directory
+install_ca_certificates() {
+    local certs=("${CA_CERTS_DIR}"/*.crt)
 
-    cp "${CA_CERT_PATH}" "${MOUNT_POINT}"
-    chroot_run trust anchor --store /logalnet-internal-ca.crt
-    chroot_run rm /logalnet-internal-ca.crt
+    if [ ! -e "${certs[0]}" ]; then
+        print "No CA certificates found to install."
+        return
+    fi
+
+    for cert in "${certs[@]}"; do
+        local cert_name
+        cert_name=$(basename "$cert")
+        print "Adding ${cert_name} to system CA store..."
+
+        cp "$cert" "${MOUNT_POINT}/${cert_name}"
+        chroot_run trust anchor --store "/${cert_name}"
+        chroot_run rm "/${cert_name}"
+    done
 }
 
 # Configure USBGuard
