@@ -17,21 +17,7 @@
 # drivers.sh - Graphics driver installation
 #
 # Prompts the user to select and install graphics drivers (Intel, NVIDIA, or skip).
-
-# Intel graphics packages
-INTEL_PACKAGES=(
-    mesa
-    vulkan-intel
-    intel-media-driver
-    libva-intel-driver
-)
-
-# NVIDIA graphics packages
-NVIDIA_PACKAGES=(
-    mesa
-    nvidia-open
-    libva-nvidia-driver
-)
+# Driver package arrays are defined in config/drivers.conf.
 
 # Prompt user for graphics driver selection and install
 prompt_install_graphics() {

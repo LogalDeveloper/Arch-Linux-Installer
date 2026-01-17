@@ -16,6 +16,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Source configuration
 source "${SCRIPT_DIR}/config/defaults.conf"
 source "${SCRIPT_DIR}/config/luks.conf"
+source "${SCRIPT_DIR}/config/drivers.conf"
+source "${SCRIPT_DIR}/config/profiles.conf"
 
 # Source core libraries
 source "${SCRIPT_DIR}/lib/core/common.sh"

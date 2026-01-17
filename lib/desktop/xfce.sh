@@ -17,47 +17,7 @@
 # xfce.sh - XFCE desktop environment installation
 #
 # Installs XFCE4 with LightDM and copies pre-configured user settings.
-
-# XFCE base packages
-XFCE_PACKAGES=(
-    lightdm
-    lightdm-gtk-greeter
-    lightdm-gtk-greeter-settings
-    thunar
-    thunar-archive-plugin
-    gvfs
-    xfce4-panel
-    xfce4-power-manager
-    xfce4-session
-    xfce4-settings
-    xfce4-terminal
-    xfdesktop
-    xfwm4
-    papirus-icon-theme
-    xfce4-battery-plugin
-    xfce4-notifyd
-    xfce4-whiskermenu-plugin
-    xfce4-screensaver
-    xfce4-screenshooter
-    mousepad
-    noto-fonts
-    noto-fonts-cjk
-    noto-fonts-emoji
-    noto-fonts-extra
-    pipewire
-    pipewire-alsa
-    pipewire-pulse
-    pipewire-jack
-    wireplumber
-    pavucontrol
-    xfce4-pulseaudio-plugin
-    ristretto
-    webp-pixbuf-loader
-    libopenraw
-    xarchiver
-    7zip
-    xreader
-)
+# XFCE_PACKAGES is defined in config/profiles.conf.
 
 # Install XFCE base packages
 install_xfce_packages() {
