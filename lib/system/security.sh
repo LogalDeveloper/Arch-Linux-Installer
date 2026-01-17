@@ -36,21 +36,14 @@ configure_initramfs() {
     run_visible_cmd chroot_run mkinitcpio -P
 }
 
-# Enable fstrim timer for SSD maintenance
-enable_fstrim() {
-    print "Enabling fstrim timer..."
-    chroot_enable fstrim.timer
-}
-
-# Enable BTRFS scrub timer
+# Enable BTRFS scrub timer if using BTRFS filesystem
 # Arguments:
 #   $1 - filesystem type
 enable_btrfs_scrub() {
     local filesystem="$1"
 
     if [ "$filesystem" = "btrfs" ] || [ "$filesystem" = "btrfs-dup" ]; then
-        print "Enabling btrfs scrub timer..."
-        chroot_enable btrfs-scrub@-.timer
+        chroot_systemd_enable btrfs-scrub@-.timer
     fi
 }
 
@@ -66,18 +59,6 @@ disable_root() {
     chroot_run passwd -l root
 }
 
-# Enable nftables firewall
-enable_firewall() {
-    print "Enabling nftables firewall..."
-    chroot_enable nftables.service
-}
-
-# Enable smartd for drive monitoring
-enable_smartd() {
-    print "Enabling smartd..."
-    chroot_enable smartd.service
-}
-
 # Configure SSH server
 # Arguments:
 #   $1 - username to allow SSH access
@@ -88,7 +69,7 @@ configure_ssh() {
 
     chroot_run sed -i "s|PLACEHOLDER|${username}|" /etc/ssh/sshd_config
     run_visible_cmd chroot_run ssh-keygen -t ed25519 -C "" -N "" -f /etc/ssh/ssh_host_ed25519_key
-    chroot_enable sshd.service
+    chroot_systemd_enable sshd.service
 }
 
 # Display SSH host key fingerprint
@@ -113,7 +94,7 @@ configure_usbguard() {
     read -r
 
     chroot_run sh -c "usbguard generate-policy > /etc/usbguard/rules.conf"
-    chroot_enable usbguard.service
+    chroot_systemd_enable usbguard.service
 }
 
 # Full security setup
@@ -124,8 +105,8 @@ setup_security() {
 
     configure_sudo
     disable_root
-    enable_firewall
-    enable_smartd
-    enable_fstrim
+    chroot_systemd_enable nftables.service
+    chroot_systemd_enable smartd.service
+    chroot_systemd_enable fstrim.timer
     enable_btrfs_scrub "$filesystem"
 }

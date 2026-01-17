@@ -33,32 +33,19 @@ NVIDIA_PACKAGES=(
     libva-nvidia-driver
 )
 
-# Install Intel graphics drivers
-install_intel_graphics() {
-    print "Installing Intel graphics drivers..."
-    chroot_install "${INTEL_PACKAGES[@]}"
-}
-
-# Install NVIDIA graphics drivers
-install_nvidia_graphics() {
-    print "Installing NVIDIA graphics drivers..."
-    chroot_install "${NVIDIA_PACKAGES[@]}"
-}
-
 # Prompt user for graphics driver selection and install
 prompt_install_graphics() {
-    print "Would you like to install graphics drivers? Type 'intel' exactly for Intel graphics drivers, 'nvidia' for NVIDIA graphics drivers, or anything else to skip."
-    read -r driver
+    prompt_menu "Would you like to install graphics drivers?" "Intel" "NVIDIA" "Skip"
 
-    case "$driver" in
-        "intel")
-            install_intel_graphics
+    case "$MENU_SELECTION" in
+        1)
+            print "Installing Intel graphics drivers..."
+            chroot_pacman_install "${INTEL_PACKAGES[@]}"
             ;;
-        "nvidia")
-            install_nvidia_graphics
+        2)
+            print "Installing NVIDIA graphics drivers..."
+            chroot_pacman_install "${NVIDIA_PACKAGES[@]}"
             ;;
-        *)
-            print "Skipping graphics driver installation."
-            ;;
+        *) print "Skipping graphics driver installation." ;;
     esac
 }

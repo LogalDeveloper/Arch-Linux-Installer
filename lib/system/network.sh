@@ -55,41 +55,24 @@ configure_mirrorlist() {
     echo "Server = ${MIRROR_URL}" > /etc/pacman.d/mirrorlist
 }
 
-# Enable systemd-resolved
+# Enable systemd-resolved and configure resolv.conf symlink
 enable_resolved() {
-    print "Enabling systemd-resolved..."
-
-    chroot_enable systemd-resolved.service
+    chroot_systemd_enable systemd-resolved.service
     ln -sf ../run/systemd/resolve/stub-resolv.conf "${MOUNT_POINT}/etc/resolv.conf"
-}
-
-# Enable systemd-networkd
-enable_networkd() {
-    print "Enabling systemd-networkd..."
-    chroot_enable systemd-networkd.service
-}
-
-# Enable systemd-timesyncd
-enable_timesyncd() {
-    print "Enabling systemd-timesyncd..."
-    chroot_enable systemd-timesyncd.service
 }
 
 # Prompt and install iwd for Wi-Fi support
 prompt_install_wifi() {
-    print "Would you like to install iwd for Wi-Fi support? Enter 'y' exactly for yes, otherwise anything else to skip."
-    read -r install_iwd
-
-    if [ "$install_iwd" = "y" ]; then
+    if confirm "Would you like to install iwd for Wi-Fi support?"; then
         print "Installing iwd..."
-        chroot_install iwd
-        chroot_enable iwd.service
+        chroot_pacman_install iwd
+        chroot_systemd_enable iwd.service
     fi
 }
 
 # Full network setup
 setup_network() {
     enable_resolved
-    enable_networkd
-    enable_timesyncd
+    chroot_systemd_enable systemd-networkd.service
+    chroot_systemd_enable systemd-timesyncd.service
 }

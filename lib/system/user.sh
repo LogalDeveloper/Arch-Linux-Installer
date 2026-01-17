@@ -22,14 +22,10 @@
 # Sets:
 #   USERNAME - the entered username
 prompt_username() {
-    local username
-
     while true; do
-        print "Please enter the username you'd like to use for your account:"
-        read -r username
+        prompt "Please enter the username you'd like to use for your account:" USERNAME
 
-        if validate_username "$username"; then
-            USERNAME="$username"
+        if validate_username "$USERNAME"; then
             return 0
         fi
 

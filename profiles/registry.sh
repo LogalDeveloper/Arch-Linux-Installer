@@ -153,14 +153,14 @@ install_profile() {
     packages=$(get_profile_packages "$profile")
     if [ -n "$packages" ]; then
         # shellcheck disable=SC2086
-        chroot_install $packages
+        chroot_pacman_install $packages
     fi
 
     # Enable profile services
     services=$(get_profile_services "$profile")
     if [ -n "$services" ]; then
         # shellcheck disable=SC2086
-        chroot_enable $services
+        chroot_systemd_enable $services
     fi
 }
 

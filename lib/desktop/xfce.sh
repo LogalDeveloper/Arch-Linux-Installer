@@ -61,12 +61,7 @@ XFCE_PACKAGES=(
 
 # Install XFCE base packages
 install_xfce_packages() {
-    chroot_install "${XFCE_PACKAGES[@]}"
-}
-
-# Enable LightDM display manager
-enable_lightdm() {
-    chroot_enable lightdm.service
+    chroot_pacman_install "${XFCE_PACKAGES[@]}"
 }
 
 # Configure LightDM greeter
@@ -109,7 +104,7 @@ install_xfce() {
     local username="$1"
 
     install_xfce_packages
-    enable_lightdm
+    chroot_systemd_enable lightdm.service
     configure_lightdm
     copy_xfce_config "$username"
 }

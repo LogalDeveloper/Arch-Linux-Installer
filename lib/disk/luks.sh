@@ -98,24 +98,9 @@ close_luks_container() {
 # Returns:
 #   0 on success, 1 on mismatch
 prompt_encryption_password() {
-    local password
-    local password_confirm
-
-    print "Please enter your desired encryption passphrase."
-    read -rs password
-    echo
-
-    print "Please confirm your encryption passphrase."
-    read -rs password_confirm
-    echo
-
-    if [ "$password" != "$password_confirm" ]; then
-        print_error "Passphrases do not match."
+    if ! prompt_password "Please enter your desired encryption passphrase." ENCRYPTION_PASSWORD; then
         return 1
     fi
-
-    ENCRYPTION_PASSWORD="$password"
-    unset password password_confirm
     return 0
 }
 

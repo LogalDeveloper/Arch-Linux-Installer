@@ -30,17 +30,20 @@ chroot_run() {
     arch-chroot "${MOUNT_POINT}" "$@"
 }
 
-# Install packages in the chroot environment
+# Install packages in the chroot environment using pacman
 # Arguments:
 #   $@ - package names
-chroot_install() {
+chroot_pacman_install() {
     run_visible_cmd chroot_run pacman --noconfirm -S "$@"
 }
 
-# Enable a systemd service in the chroot environment
+# Enable systemd units in the chroot environment
 # Arguments:
-#   $@ - service names
-chroot_enable() {
+#   $@ - unit names (services, timers, etc.)
+chroot_systemd_enable() {
+    for unit in "$@"; do
+        print "Enabling ${unit}..."
+    done
     run_visible_cmd chroot_run systemctl enable "$@"
 }
 
@@ -80,10 +83,10 @@ install_microcode() {
 
     case "$vendor" in
         "intel")
-            chroot_install intel-ucode
+            chroot_pacman_install intel-ucode
             ;;
         "amd")
-            chroot_install amd-ucode
+            chroot_pacman_install amd-ucode
             ;;
         *)
             print_warning "Unknown CPU vendor: ${vendor}. Please install microcode manually after installation, if available."
