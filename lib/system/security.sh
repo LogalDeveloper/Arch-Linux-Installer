@@ -32,8 +32,8 @@ configure_initramfs() {
     local default_line="HOOKS=(base systemd autodetect microcode modconf kms keyboard keymap sd-vconsole block filesystems fsck)"
     local new_line="HOOKS=(systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)"
 
-    chroot_run sed -i "s|^${default_line}|${new_line}|" /etc/mkinitcpio.conf
-    run_visible_cmd chroot_run mkinitcpio -P
+    run_cmd_in_chroot sed -i "s|^${default_line}|${new_line}|" /etc/mkinitcpio.conf
+    run_visible_cmd_in_chroot mkinitcpio -P
 }
 
 # Enable BTRFS scrub timer if using BTRFS filesystem
@@ -50,13 +50,13 @@ enable_btrfs_scrub() {
 # Configure sudo access for wheel group
 configure_sudo() {
     print "Enabling sudo access for wheel group..."
-    chroot_run sed -i "s|^# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|" /etc/sudoers
+    run_cmd_in_chroot sed -i "s|^# %wheel ALL=(ALL:ALL) ALL|%wheel ALL=(ALL:ALL) ALL|" /etc/sudoers
 }
 
 # Disable root account login
 disable_root() {
     print "Disabling root account..."
-    chroot_run passwd -l root
+    run_cmd_in_chroot passwd -l root
 }
 
 # Configure SSH server
@@ -67,15 +67,15 @@ configure_ssh() {
 
     print "Setting up and enabling OpenSSH server..."
 
-    chroot_run sed -i "s|PLACEHOLDER|${username}|" /etc/ssh/sshd_config
-    run_visible_cmd chroot_run ssh-keygen -t ed25519 -C "" -N "" -f /etc/ssh/ssh_host_ed25519_key
+    run_cmd_in_chroot sed -i "s|PLACEHOLDER|${username}|" /etc/ssh/sshd_config
+    run_visible_cmd_in_chroot ssh-keygen -t ed25519 -C "" -N "" -f /etc/ssh/ssh_host_ed25519_key
     chroot_systemd_enable sshd.service
 }
 
 # Display SSH host key fingerprint
 show_ssh_fingerprint() {
     print "Public SSH key fingerprint of this host:"
-    run_visible_cmd chroot_run ssh-keygen -lvf /etc/ssh/ssh_host_ed25519_key.pub
+    run_visible_cmd_in_chroot ssh-keygen -lvf /etc/ssh/ssh_host_ed25519_key.pub
 }
 
 # Install custom CA certificates from certs directory
@@ -92,9 +92,9 @@ install_ca_certificates() {
         cert_name=$(basename "$cert")
         print "Adding ${cert_name} to system CA store..."
 
-        cp "$cert" "${MOUNT_POINT}/${cert_name}"
-        chroot_run trust anchor --store "/${cert_name}"
-        chroot_run rm "/${cert_name}"
+        run_visible_cmd cp "$cert" "${MOUNT_POINT}/${cert_name}"
+        run_cmd_in_chroot trust anchor --store "/${cert_name}"
+        run_cmd_in_chroot rm "/${cert_name}"
     done
 }
 
@@ -104,7 +104,7 @@ configure_usbguard() {
     print "When ready to proceed, press enter."
     read -r
 
-    chroot_run sh -c "usbguard generate-policy > /etc/usbguard/rules.conf"
+    run_cmd_in_chroot sh -c "usbguard generate-policy > /etc/usbguard/rules.conf"
     chroot_systemd_enable usbguard.service
 }
 

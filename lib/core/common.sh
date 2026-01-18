@@ -54,9 +54,60 @@ print_info() {
 
 # Run a command with gray background for its output
 # Use this for commands that produce visible output (fdisk, pacstrap, pacman, etc.)
+# Logs the command before execution for auditing
 run_visible_cmd() {
+    log_cmd "$@"
     echo -ne "${COLOR_BG_GRAY}"
     "$@"
+    local exit_code=$?
+    echo -e "${COLOR_RESET}"
+    return $exit_code
+}
+
+# Run a command with piped input and gray background for its output
+# Logs the command (without the piped input) before execution
+# Arguments:
+#   $1 - input to pipe to the command
+#   $@ - command and arguments
+run_piped_cmd() {
+    local input="$1"
+    shift
+    log_cmd "$@"
+    echo -ne "${COLOR_BG_GRAY}"
+    echo -n "$input" | "$@"
+    local exit_code=$?
+    echo -e "${COLOR_RESET}"
+    return $exit_code
+}
+
+# Run a command with logging only (no visual wrapper)
+# Use for commands that need stdout preserved (pipes, redirections)
+run_cmd() {
+    log_cmd "$@"
+    "$@"
+}
+
+# Run a command that is allowed to fail
+# Logs the command, suppresses stderr, and always returns success
+# Use for cleanup commands where failure is acceptable
+run_cmd_allow_fail() {
+    log_cmd "$@"
+    "$@" 2>/dev/null || true
+}
+
+# Run a command in the chroot environment with logging
+# Use for commands that don't produce visible output
+run_cmd_in_chroot() {
+    log_cmd arch-chroot "${MOUNT_POINT}" "$@"
+    arch-chroot "${MOUNT_POINT}" "$@"
+}
+
+# Run a command in the chroot environment with gray background
+# Use for commands that produce visible output (pacman, mkinitcpio, etc.)
+run_visible_cmd_in_chroot() {
+    log_cmd arch-chroot "${MOUNT_POINT}" "$@"
+    echo -ne "${COLOR_BG_GRAY}"
+    arch-chroot "${MOUNT_POINT}" "$@"
     local exit_code=$?
     echo -e "${COLOR_RESET}"
     return $exit_code

@@ -25,7 +25,7 @@
 # Install systemd-boot bootloader
 install_bootloader() {
     print "Installing bootloader..."
-    run_visible_cmd chroot_run bootctl install
+    run_visible_cmd_in_chroot bootctl install
 }
 
 # Create boot entry for single-disk installation
@@ -34,7 +34,7 @@ install_bootloader() {
 create_boot_entry_single() {
     local luks_uuid="$1"
 
-    chroot_run sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
+    run_cmd_in_chroot sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
@@ -50,7 +50,7 @@ create_boot_entry_raid1() {
     local luks_uuid_1="$1"
     local luks_uuid_2="$2"
 
-    chroot_run sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
+    run_cmd_in_chroot sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
@@ -73,7 +73,7 @@ create_boot_entry() {
 
 # Configure loader.conf timeout
 configure_loader() {
-    chroot_run sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
+    run_cmd_in_chroot sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
 }
 
 # Full bootloader setup

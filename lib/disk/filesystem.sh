@@ -118,14 +118,14 @@ mount_root_filesystem() {
 
     case "$filesystem" in
         "ext4")
-            mount -o "noatime,discard" /dev/mapper/cryptroot "${MOUNT_POINT}"
+            run_visible_cmd mount -o "noatime,discard" /dev/mapper/cryptroot "${MOUNT_POINT}"
             ;;
 
         *)
             if [ "$storage_mode" = "raid1" ]; then
-                mount -o "noatime,discard=async" /dev/mapper/cryptroot-primary "${MOUNT_POINT}"
+                run_visible_cmd mount -o "noatime,discard=async" /dev/mapper/cryptroot-primary "${MOUNT_POINT}"
             else
-                mount -o "noatime,discard=async" /dev/mapper/cryptroot "${MOUNT_POINT}"
+                run_visible_cmd mount -o "noatime,discard=async" /dev/mapper/cryptroot "${MOUNT_POINT}"
             fi
             ;;
     esac
@@ -137,7 +137,7 @@ mount_root_filesystem() {
 mount_efi_partition() {
     local efi_partition="$1"
 
-    mount --mkdir -o "fmask=0077,dmask=0077" "$efi_partition" "${MOUNT_POINT}/boot"
+    run_visible_cmd mount --mkdir -o "fmask=0077,dmask=0077" "$efi_partition" "${MOUNT_POINT}/boot"
 }
 
 # Format and mount all filesystems

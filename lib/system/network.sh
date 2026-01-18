@@ -58,7 +58,7 @@ configure_mirrorlist() {
 # Enable systemd-resolved and configure resolv.conf symlink
 enable_resolved() {
     chroot_systemd_enable systemd-resolved.service
-    ln -sf ../run/systemd/resolve/stub-resolv.conf "${MOUNT_POINT}/etc/resolv.conf"
+    run_visible_cmd ln -sf ../run/systemd/resolve/stub-resolv.conf "${MOUNT_POINT}/etc/resolv.conf"
 }
 
 # Prompt and install iwd for Wi-Fi support

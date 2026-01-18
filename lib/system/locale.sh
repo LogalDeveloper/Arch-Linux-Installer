@@ -23,9 +23,9 @@
 configure_locale() {
     print "Setting up locale..."
 
-    chroot_run sed -i '/^#.*en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
-    run_visible_cmd chroot_run locale-gen
-    chroot_run systemd-firstboot --locale=en_US.UTF-8
+    run_cmd_in_chroot sed -i '/^#.*en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
+    run_visible_cmd_in_chroot locale-gen
+    run_cmd_in_chroot systemd-firstboot --locale=en_US.UTF-8
 }
 
 # Run interactive firstboot setup for timezone, keymap, hostname
@@ -33,7 +33,7 @@ run_firstboot() {
     print "Entering first time setup..."
     print "Your keymap is probably 'us' and the time zone is probably 'America/New_York'."
 
-    run_visible_cmd chroot_run systemd-firstboot --prompt
+    run_visible_cmd_in_chroot systemd-firstboot --prompt
 }
 
 # Full locale and timezone setup

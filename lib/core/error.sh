@@ -65,12 +65,12 @@ cleanup_on_error() {
     print_warning "Cleaning up after error..."
 
     # Unmount filesystems (ignore errors)
-    umount -R "${MOUNT_POINT}" 2>/dev/null || true
+    run_cmd_allow_fail umount -R "${MOUNT_POINT}"
 
     # Close LUKS containers (ignore errors)
-    cryptsetup close cryptroot 2>/dev/null || true
-    cryptsetup close cryptroot-primary 2>/dev/null || true
-    cryptsetup close cryptroot-secondary 2>/dev/null || true
+    run_cmd_allow_fail cryptsetup close cryptroot
+    run_cmd_allow_fail cryptsetup close cryptroot-primary
+    run_cmd_allow_fail cryptsetup close cryptroot-secondary
 
     print "Cleanup complete. You may retry the installation."
 }
@@ -91,6 +91,7 @@ safe_run() {
     local description="$1"
     shift
 
+    log_cmd "$@"
     print "  $description..."
     if ! "$@"; then
         print_error "Failed: $description"
@@ -108,6 +109,7 @@ retry() {
     local delay="$2"
     shift 2
 
+    log_cmd "$@"
     local attempt=1
     while [ $attempt -le $max_attempts ]; do
         if "$@"; then

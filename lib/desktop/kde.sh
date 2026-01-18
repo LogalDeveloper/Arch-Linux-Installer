@@ -31,9 +31,9 @@ copy_desktop_skel() {
     local username="$1"
     local home_dir="${MOUNT_POINT}/home/${username}"
 
-    cp -r "${HOME_SKEL_DESKTOP_DIR}/." "${home_dir}/"
-    rm -f "${home_dir}/.gitkeep"
-    chown -R 1000:1000 "${home_dir}"
+    run_visible_cmd cp -r "${HOME_SKEL_DESKTOP_DIR}/." "${home_dir}/"
+    run_visible_cmd rm -f "${home_dir}/.gitkeep"
+    run_visible_cmd chown -R 1000:1000 "${home_dir}"
 }
 
 # Full KDE installation
@@ -45,5 +45,5 @@ install_kde() {
     install_kde_packages
     chroot_systemd_enable sddm.service
     copy_desktop_skel "$username"
-    chroot_run usermod -aG wireshark "$username"
+    run_cmd_in_chroot usermod -aG wireshark "$username"
 }

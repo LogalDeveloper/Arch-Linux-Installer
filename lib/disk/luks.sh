@@ -33,9 +33,7 @@ setup_luks_encryption() {
 
     print "Setting up encryption on ${partition}..."
 
-    # Wrapped manually (not using run_visible_cmd) due to piped password input
-    echo -ne "${COLOR_BG_GRAY}"
-    echo -n "$password" | cryptsetup luksFormat \
+    run_piped_cmd "$password" cryptsetup luksFormat \
         --type "$LUKS_TYPE" \
         --cipher "$LUKS_CIPHER" \
         --hash "$LUKS_HASH" \
@@ -47,7 +45,6 @@ setup_luks_encryption() {
         --use-urandom \
         --key-file - \
         "$partition"
-    echo -e "${COLOR_RESET}"
 }
 
 # Open (unlock) a LUKS container
@@ -62,14 +59,11 @@ open_luks_container() {
 
     print "Unlocking ${partition}..."
 
-    # Wrapped manually (not using run_visible_cmd) due to piped password input
-    echo -ne "${COLOR_BG_GRAY}"
-    echo -n "$password" | cryptsetup open \
+    run_piped_cmd "$password" cryptsetup open \
         --allow-discards \
         --key-file - \
         "$partition" \
         "$mapper_name"
-    echo -e "${COLOR_RESET}"
 }
 
 # Get the UUID of a LUKS container
@@ -80,7 +74,7 @@ open_luks_container() {
 get_luks_uuid() {
     local partition="$1"
 
-    cryptsetup luksDump "$partition" | grep 'UUID:' | awk '{print $2}'
+    run_cmd cryptsetup luksDump "$partition" | grep 'UUID:' | awk '{print $2}'
 }
 
 # Close a LUKS container
@@ -89,7 +83,7 @@ get_luks_uuid() {
 close_luks_container() {
     local mapper_name="$1"
 
-    cryptsetup close "$mapper_name" 2>/dev/null || true
+    run_cmd_allow_fail cryptsetup close "$mapper_name"
 }
 
 # Prompt for encryption password with confirmation

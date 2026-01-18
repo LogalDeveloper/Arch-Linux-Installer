@@ -20,21 +20,14 @@
 # - Runs pacstrap with base packages defined in defaults.conf
 # - Detects CPU vendor and installs appropriate microcode (Intel/AMD)
 # - Generates /etc/fstab with UUIDs
-# - Provides chroot helper functions for running commands in new system
+# - Provides high-level chroot helpers for common operations
 # - Copies configuration files from installer to target system
-
-# Run a command in the chroot environment
-# Arguments:
-#   $@ - command and arguments
-chroot_run() {
-    arch-chroot "${MOUNT_POINT}" "$@"
-}
 
 # Install packages in the chroot environment using pacman
 # Arguments:
 #   $@ - package names
 chroot_pacman_install() {
-    run_visible_cmd chroot_run pacman --noconfirm -S "$@"
+    run_visible_cmd_in_chroot pacman --noconfirm -S "$@"
 }
 
 # Enable systemd units in the chroot environment
@@ -44,7 +37,7 @@ chroot_systemd_enable() {
     for unit in "$@"; do
         print "Enabling ${unit}..."
     done
-    run_visible_cmd chroot_run systemctl enable "$@"
+    run_visible_cmd_in_chroot systemctl enable "$@"
 }
 
 # Install base Arch Linux packages
@@ -97,11 +90,11 @@ install_microcode() {
 # Generate /etc/fstab
 generate_fstab() {
     print "Generating /etc/fstab..."
-    genfstab -U "${MOUNT_POINT}" >> "${MOUNT_POINT}/etc/fstab"
+    run_cmd genfstab -U "${MOUNT_POINT}" >> "${MOUNT_POINT}/etc/fstab"
 }
 
 # Copy configuration files from installer to target system
 copy_config_files() {
     print "Installing default configuration files..."
-    cp -r "${CONFIG_SRC_DIR}" "${MOUNT_POINT}"
+    run_visible_cmd cp -r "${CONFIG_SRC_DIR}" "${MOUNT_POINT}"
 }

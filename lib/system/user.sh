@@ -47,9 +47,9 @@ copy_home_skel() {
     local username="$1"
     local home_dir="${MOUNT_POINT}/home/${username}"
 
-    cp -r "${HOME_SKEL_DIR}/." "${home_dir}/"
-    rm -f "${home_dir}/.gitkeep"
-    chown -R 1000:1000 "${home_dir}"
+    run_visible_cmd cp -r "${HOME_SKEL_DIR}/." "${home_dir}/"
+    run_visible_cmd rm -f "${home_dir}/.gitkeep"
+    run_visible_cmd chown -R 1000:1000 "${home_dir}"
 }
 
 # Create a user account
@@ -61,9 +61,9 @@ create_user() {
     local display_name="${2:-}"
 
     if [[ -n "$display_name" ]]; then
-        chroot_run useradd -m -G wheel -c "$display_name" "$username"
+        run_cmd_in_chroot useradd -m -G wheel -c "$display_name" "$username"
     else
-        chroot_run useradd -m -G wheel "$username"
+        run_cmd_in_chroot useradd -m -G wheel "$username"
     fi
     copy_home_skel "$username"
 }
@@ -75,7 +75,7 @@ set_user_password() {
     local username="$1"
 
     print "Please set the password for your new account."
-    chroot_run passwd "$username"
+    run_visible_cmd_in_chroot passwd "$username"
 }
 
 # Full user setup

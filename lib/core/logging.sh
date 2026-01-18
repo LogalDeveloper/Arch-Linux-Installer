@@ -55,6 +55,13 @@ init_logging() {
     echo ""
 }
 
+# Log a command before execution
+# Arguments:
+#   $@ - command and arguments to log
+log_cmd() {
+    echo -e "\033[0;35m[CMD]\033[0m $*"
+}
+
 # Copy log file to installed system
 finalize_logging() {
     local final_log="${MOUNT_POINT}${LOG_FILE}"
