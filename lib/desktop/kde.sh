@@ -45,5 +45,4 @@ install_kde() {
     install_kde_packages
     chroot_systemd_enable sddm.service
     copy_desktop_skel "$username"
-    run_cmd_in_chroot usermod -aG wireshark "$username"
 }

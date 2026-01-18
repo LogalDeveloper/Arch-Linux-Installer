@@ -111,6 +111,11 @@ install_profile() {
         chroot_pacman_install $packages
     fi
 
+    # Add user to wireshark group if wireshark was installed
+    if run_cmd_in_chroot getent group wireshark > /dev/null 2>&1; then
+        run_cmd_in_chroot usermod -aG wireshark "$username"
+    fi
+
     # Enable profile services
     services=$(get_profile_services "$profile_key")
     for service in $services; do
