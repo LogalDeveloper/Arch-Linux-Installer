@@ -84,6 +84,8 @@ wipe_disk() {
     local disk="$1"
 
     print "Wiping existing partition table from $disk..."
+    # Discard all sectors first (useful for SSDs, may fail on HDDs)
+    run_cmd_allow_fail blkdiscard -f "$disk"
     run_visible_cmd wipefs -a "$disk"
 }
 
