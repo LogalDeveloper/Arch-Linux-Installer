@@ -66,15 +66,15 @@ get_profile_services() {
     echo "${!svc_var}"
 }
 
-# Check if profile requires XFCE
+# Check if profile requires KDE
 # Arguments:
 #   $1 - profile key
 # Returns:
-#   0 if requires XFCE, 1 otherwise
-profile_requires_xfce() {
+#   0 if requires KDE, 1 otherwise
+profile_requires_kde() {
     local profile_key="$1"
-    local xfce_var="PROFILE_${profile_key}_XFCE"
-    [ "${!xfce_var}" = "true" ]
+    local kde_var="PROFILE_${profile_key}_KDE"
+    [ "${!kde_var}" = "true" ]
 }
 
 # Validate profile selection
@@ -98,9 +98,9 @@ install_profile() {
     local packages
     local services
 
-    # Install XFCE if required
-    if profile_requires_xfce "$profile_key"; then
-        install_xfce "$username"
+    # Install KDE if required
+    if profile_requires_kde "$profile_key"; then
+        install_kde "$username"
         prompt_install_graphics
     fi
 

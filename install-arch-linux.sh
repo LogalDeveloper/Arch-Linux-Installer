@@ -39,7 +39,7 @@ source "${SCRIPT_DIR}/lib/system/security.sh"
 source "${SCRIPT_DIR}/lib/system/user.sh"
 
 # Source desktop modules
-source "${SCRIPT_DIR}/lib/desktop/xfce.sh"
+source "${SCRIPT_DIR}/lib/desktop/kde.sh"
 source "${SCRIPT_DIR}/lib/desktop/drivers.sh"
 
 # Source profile system

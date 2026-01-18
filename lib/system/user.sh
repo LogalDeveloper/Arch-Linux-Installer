@@ -33,13 +33,39 @@ prompt_username() {
     done
 }
 
+# Prompt for display name
+# Sets:
+#   DISPLAY_NAME - the entered display name (empty if skipped)
+prompt_display_name() {
+    prompt "Please enter your display name, or press Enter to skip (e.g., John Smith):" DISPLAY_NAME
+}
+
+# Copy base skeleton files to user home
+# Arguments:
+#   $1 - username
+copy_home_skel() {
+    local username="$1"
+    local home_dir="${MOUNT_POINT}/home/${username}"
+
+    cp -r "${HOME_SKEL_DIR}/." "${home_dir}/"
+    rm -f "${home_dir}/.gitkeep"
+    chown -R 1000:1000 "${home_dir}"
+}
+
 # Create a user account
 # Arguments:
 #   $1 - username
+#   $2 - display name (optional)
 create_user() {
     local username="$1"
+    local display_name="${2:-}"
 
-    chroot_run useradd -m -G wheel "$username"
+    if [[ -n "$display_name" ]]; then
+        chroot_run useradd -m -G wheel -c "$display_name" "$username"
+    else
+        chroot_run useradd -m -G wheel "$username"
+    fi
+    copy_home_skel "$username"
 }
 
 # Set password for a user
@@ -55,8 +81,10 @@ set_user_password() {
 # Full user setup
 # Sets:
 #   USERNAME - the created username
+#   DISPLAY_NAME - the user's display name
 setup_user() {
     prompt_username
-    create_user "$USERNAME"
+    prompt_display_name
+    create_user "$USERNAME" "$DISPLAY_NAME"
     set_user_password "$USERNAME"
 }
