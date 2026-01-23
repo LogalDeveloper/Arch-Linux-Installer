@@ -58,27 +58,27 @@ trap_errors
 #   FILESYSTEM - "ext4", "btrfs", or "btrfs-dup"
 select_storage_mode() {
     print "Select storage and filesystem configuration:"
-    print " 1 - ext4 (Single disk)"
-    print " 2 - BTRFS (Single disk) [Recommended over ext4]"
-    print " 3 - BTRFS DUP (Single disk with duplicate data and metadata)"
-    print " 4 - BTRFS RAID1 (Two disks with full redundancy)"
+    print " 1 - BTRFS (Single disk)"
+    print " 2 - BTRFS DUP (Single disk with duplicate data and metadata)"
+    print " 3 - BTRFS RAID1 (Two disks with full redundancy)"
+    print " 4 - ext4 (Single disk)"
     read -r storage_choice
 
     case "$storage_choice" in
-        "1")
-            STORAGE_MODE="single"
-            FILESYSTEM="ext4"
-            print "ext4 on single disk selected."
-            ;;
-        "3")
+        "2")
             STORAGE_MODE="single"
             FILESYSTEM="btrfs-dup"
             print "BTRFS dup mode selected. Data and metadata will be duplicated on the same disk."
             ;;
-        "4")
+        "3")
             STORAGE_MODE="raid1"
             FILESYSTEM="btrfs"
             print "BTRFS RAID1 mode selected. You will need two disks of similar size."
+            ;;
+        "4")
+            STORAGE_MODE="single"
+            FILESYSTEM="ext4"
+            print "ext4 on single disk selected."
             ;;
         *)
             STORAGE_MODE="single"
