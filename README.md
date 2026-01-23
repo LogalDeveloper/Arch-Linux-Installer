@@ -49,7 +49,7 @@ Boot into the Arch Linux live ISO, then run:
 
 ```bash
 pacman -Sy git
-git clone https://github.com/LogalDeveloper/Arch-Linux-Installer.git
+git clone https://git.logal.dev/LogalDeveloper/Arch-Linux-Installer.git
 cd Arch-Linux-Installer
 ./install-arch-linux.sh
 ```
