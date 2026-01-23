@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# registry.sh - Profile registry and management
+# profiles.sh - Profile registry and management
 #
 # Provides functions to list, select, and install profiles.
 # Profile definitions are loaded from config/profiles.conf.

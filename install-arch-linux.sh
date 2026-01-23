@@ -43,7 +43,7 @@ source "${SCRIPT_DIR}/lib/desktop/kde.sh"
 source "${SCRIPT_DIR}/lib/desktop/drivers.sh"
 
 # Source profile system
-source "${SCRIPT_DIR}/profiles/registry.sh"
+source "${SCRIPT_DIR}/lib/system/profiles.sh"
 
 # Enable error handling
 trap_errors
