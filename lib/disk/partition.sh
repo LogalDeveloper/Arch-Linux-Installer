@@ -162,9 +162,42 @@ select_raid1_disks() {
     return 0
 }
 
+# Select and configure disks for RAID1 3-disk installation
+# Sets:
+#   INSTALL_DISK - first disk path
+#   INSTALL_DISK_2 - second disk path
+#   INSTALL_DISK_3 - third disk path
+#   EFI_PARTITION, EFI_PARTITION_2, EFI_PARTITION_3 - EFI partition paths
+#   ROOT_PARTITION, ROOT_PARTITION_2, ROOT_PARTITION_3 - root partition paths
+select_raid1_3disk_disks() {
+    show_disk_info
+
+    if ! select_disk "Please enter the path to the FIRST disk for RAID1 (e.g. /dev/sda)." INSTALL_DISK; then
+        return 1
+    fi
+
+    if ! select_disk "Enter the path to the SECOND disk for RAID1 (e.g. /dev/sdb). This must be a DIFFERENT disk." INSTALL_DISK_2; then
+        return 1
+    fi
+
+    if ! select_disk "Enter the path to the THIRD disk for RAID1 (e.g. /dev/sdc). This must be a DIFFERENT disk." INSTALL_DISK_3; then
+        return 1
+    fi
+
+    if ! validate_disks_different "$INSTALL_DISK" "$INSTALL_DISK_2" "$INSTALL_DISK_3"; then
+        return 1
+    fi
+
+    if ! require_confirmation "Last warning: Are you sure you want to install Arch Linux in RAID1 3-disk mode to '$INSTALL_DISK', '$INSTALL_DISK_2', and '$INSTALL_DISK_3'? All data on ALL THREE disks will be wiped."; then
+        return 1
+    fi
+
+    return 0
+}
+
 # Partition disks based on storage mode
 # Arguments:
-#   $1 - storage mode (single or raid1)
+#   $1 - storage mode (single, raid1, or raid1-3disk)
 partition_disks() {
     local storage_mode="$1"
 
@@ -179,6 +212,25 @@ partition_disks() {
         create_gpt_partitions "$INSTALL_DISK_2"
         EFI_PARTITION_2="$EFI_PARTITION"
         ROOT_PARTITION_2="$ROOT_PARTITION"
+
+        EFI_PARTITION="$primary_efi"
+        ROOT_PARTITION="$primary_root"
+    elif [ "$storage_mode" = "raid1-3disk" ]; then
+        wipe_disk "$INSTALL_DISK"
+        wipe_disk "$INSTALL_DISK_2"
+        wipe_disk "$INSTALL_DISK_3"
+
+        create_gpt_partitions "$INSTALL_DISK"
+        local primary_efi="$EFI_PARTITION"
+        local primary_root="$ROOT_PARTITION"
+
+        create_gpt_partitions "$INSTALL_DISK_2"
+        EFI_PARTITION_2="$EFI_PARTITION"
+        ROOT_PARTITION_2="$ROOT_PARTITION"
+
+        create_gpt_partitions "$INSTALL_DISK_3"
+        EFI_PARTITION_3="$EFI_PARTITION"
+        ROOT_PARTITION_3="$ROOT_PARTITION"
 
         EFI_PARTITION="$primary_efi"
         ROOT_PARTITION="$primary_root"

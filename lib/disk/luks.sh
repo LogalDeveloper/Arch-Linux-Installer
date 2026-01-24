@@ -135,13 +135,50 @@ setup_encryption_raid1() {
 
     # Setup first disk
     setup_luks_encryption "$root_partition_1" "$ENCRYPTION_PASSWORD"
-    open_luks_container "$root_partition_1" "$ENCRYPTION_PASSWORD" "cryptroot-primary"
+    open_luks_container "$root_partition_1" "$ENCRYPTION_PASSWORD" "cryptroot-1"
     LUKS_UUID=$(get_luks_uuid "$root_partition_1")
 
     # Setup second disk
     setup_luks_encryption "$root_partition_2" "$ENCRYPTION_PASSWORD"
-    open_luks_container "$root_partition_2" "$ENCRYPTION_PASSWORD" "cryptroot-secondary"
+    open_luks_container "$root_partition_2" "$ENCRYPTION_PASSWORD" "cryptroot-2"
     LUKS_UUID_2=$(get_luks_uuid "$root_partition_2")
+
+    # Clear password from memory
+    unset ENCRYPTION_PASSWORD
+}
+
+# Setup encryption for RAID1 3-disk mode
+# Arguments:
+#   $1 - first root partition path
+#   $2 - second root partition path
+#   $3 - third root partition path
+# Sets:
+#   LUKS_UUID - UUID of the first LUKS container
+#   LUKS_UUID_2 - UUID of the second LUKS container
+#   LUKS_UUID_3 - UUID of the third LUKS container
+setup_encryption_raid1_3disk() {
+    local root_partition_1="$1"
+    local root_partition_2="$2"
+    local root_partition_3="$3"
+
+    if ! prompt_encryption_password; then
+        exit 1
+    fi
+
+    # Setup first disk
+    setup_luks_encryption "$root_partition_1" "$ENCRYPTION_PASSWORD"
+    open_luks_container "$root_partition_1" "$ENCRYPTION_PASSWORD" "cryptroot-1"
+    LUKS_UUID=$(get_luks_uuid "$root_partition_1")
+
+    # Setup second disk
+    setup_luks_encryption "$root_partition_2" "$ENCRYPTION_PASSWORD"
+    open_luks_container "$root_partition_2" "$ENCRYPTION_PASSWORD" "cryptroot-2"
+    LUKS_UUID_2=$(get_luks_uuid "$root_partition_2")
+
+    # Setup third disk
+    setup_luks_encryption "$root_partition_3" "$ENCRYPTION_PASSWORD"
+    open_luks_container "$root_partition_3" "$ENCRYPTION_PASSWORD" "cryptroot-3"
+    LUKS_UUID_3=$(get_luks_uuid "$root_partition_3")
 
     # Clear password from memory
     unset ENCRYPTION_PASSWORD

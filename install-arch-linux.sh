@@ -61,7 +61,8 @@ select_storage_mode() {
     print " 1 - BTRFS (Single disk)"
     print " 2 - BTRFS DUP (Single disk with duplicate data and metadata)"
     print " 3 - BTRFS RAID1 (Two disks with full redundancy)"
-    print " 4 - ext4 (Single disk)"
+    print " 4 - BTRFS RAID1 (Three disks with enhanced metadata redundancy)"
+    print " 5 - ext4 (Single disk)"
     read -r storage_choice
 
     case "$storage_choice" in
@@ -76,6 +77,11 @@ select_storage_mode() {
             print "BTRFS RAID1 mode selected. You will need two disks of similar size."
             ;;
         "4")
+            STORAGE_MODE="raid1-3disk"
+            FILESYSTEM="btrfs"
+            print "BTRFS RAID1 3-disk mode selected. You will need three disks of similar size."
+            ;;
+        "5")
             STORAGE_MODE="single"
             FILESYSTEM="ext4"
             print "ext4 on single disk selected."
@@ -137,6 +143,10 @@ main() {
         if ! select_raid1_disks; then
             exit 1
         fi
+    elif [ "$STORAGE_MODE" = "raid1-3disk" ]; then
+        if ! select_raid1_3disk_disks; then
+            exit 1
+        fi
     else
         if ! select_single_disk; then
             exit 1
@@ -153,6 +163,8 @@ main() {
     # Setup encryption
     if [ "$STORAGE_MODE" = "raid1" ]; then
         setup_encryption_raid1 "$ROOT_PARTITION" "$ROOT_PARTITION_2"
+    elif [ "$STORAGE_MODE" = "raid1-3disk" ]; then
+        setup_encryption_raid1_3disk "$ROOT_PARTITION" "$ROOT_PARTITION_2" "$ROOT_PARTITION_3"
     else
         setup_encryption_single "$ROOT_PARTITION"
     fi

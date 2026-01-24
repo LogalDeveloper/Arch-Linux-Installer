@@ -54,18 +54,38 @@ create_boot_entry_raid1() {
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options rd.luks.name=${luks_uuid_1}=cryptroot-primary rd.luks.name=${luks_uuid_2}=cryptroot-secondary rd.luks.options=${luks_uuid_1}=discard rd.luks.options=${luks_uuid_2}=discard root=/dev/mapper/cryptroot-primary
+options rd.luks.name=${luks_uuid_1}=cryptroot-1 rd.luks.name=${luks_uuid_2}=cryptroot-2 rd.luks.options=${luks_uuid_1}=discard rd.luks.options=${luks_uuid_2}=discard root=/dev/mapper/cryptroot-1
+EOF
+}
+
+# Create boot entry for RAID1 3-disk installation
+# Arguments:
+#   $1 - first LUKS UUID
+#   $2 - second LUKS UUID
+#   $3 - third LUKS UUID
+create_boot_entry_raid1_3disk() {
+    local luks_uuid_1="$1"
+    local luks_uuid_2="$2"
+    local luks_uuid_3="$3"
+
+    run_cmd_in_chroot sh -c "cat > /boot/loader/entries/arch.conf" <<EOF
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
+options rd.luks.name=${luks_uuid_1}=cryptroot-1 rd.luks.name=${luks_uuid_2}=cryptroot-2 rd.luks.name=${luks_uuid_3}=cryptroot-3 rd.luks.options=${luks_uuid_1}=discard rd.luks.options=${luks_uuid_2}=discard rd.luks.options=${luks_uuid_3}=discard root=/dev/mapper/cryptroot-1
 EOF
 }
 
 # Create appropriate boot entry based on storage mode
 # Arguments:
-#   $1 - storage mode (single, raid1)
+#   $1 - storage mode (single, raid1, raid1-3disk)
 create_boot_entry() {
     local storage_mode="$1"
 
     if [ "$storage_mode" = "raid1" ]; then
         create_boot_entry_raid1 "$LUKS_UUID" "$LUKS_UUID_2"
+    elif [ "$storage_mode" = "raid1-3disk" ]; then
+        create_boot_entry_raid1_3disk "$LUKS_UUID" "$LUKS_UUID_2" "$LUKS_UUID_3"
     else
         create_boot_entry_single "$LUKS_UUID"
     fi

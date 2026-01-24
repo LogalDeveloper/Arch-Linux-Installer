@@ -75,17 +75,31 @@ format_btrfs_raid1() {
     run_visible_cmd mkfs.btrfs --csum xxhash --data raid1 --metadata raid1 "$device1" "$device2"
 }
 
+# Format three devices as BTRFS RAID1 with enhanced metadata redundancy
+# Arguments:
+#   $1 - first device path
+#   $2 - second device path
+#   $3 - third device path
+format_btrfs_raid1_3disk() {
+    local device1="$1"
+    local device2="$2"
+    local device3="$3"
+
+    print "Formatting ${device1}, ${device2}, and ${device3} as btrfs RAID1..."
+    run_visible_cmd mkfs.btrfs --csum xxhash --data raid1 --metadata raid1c3 "$device1" "$device2" "$device3"
+}
+
 # Format the root filesystem based on configuration
 # Arguments:
 #   $1 - filesystem type (ext4, btrfs, btrfs-dup)
-#   $2 - storage mode (single, raid1)
+#   $2 - storage mode (single, raid1, raid1-3disk)
 format_root_filesystem() {
     local filesystem="$1"
     local storage_mode="$2"
 
     case "$filesystem" in
         "ext4")
-            if [ "$storage_mode" = "raid1" ]; then
+            if [ "$storage_mode" = "raid1" ] || [ "$storage_mode" = "raid1-3disk" ]; then
                 print_error "ext4 cannot be used with RAID1."
                 exit 1
             fi
@@ -98,7 +112,9 @@ format_root_filesystem() {
 
         "btrfs"|*)
             if [ "$storage_mode" = "raid1" ]; then
-                format_btrfs_raid1 /dev/mapper/cryptroot-primary /dev/mapper/cryptroot-secondary
+                format_btrfs_raid1 /dev/mapper/cryptroot-1 /dev/mapper/cryptroot-2
+            elif [ "$storage_mode" = "raid1-3disk" ]; then
+                format_btrfs_raid1_3disk /dev/mapper/cryptroot-1 /dev/mapper/cryptroot-2 /dev/mapper/cryptroot-3
             else
                 format_btrfs /dev/mapper/cryptroot
             fi
@@ -109,7 +125,7 @@ format_root_filesystem() {
 # Mount the root filesystem with appropriate options
 # Arguments:
 #   $1 - filesystem type (ext4, btrfs, btrfs-dup)
-#   $2 - storage mode (single, raid1)
+#   $2 - storage mode (single, raid1, raid1-3disk)
 mount_root_filesystem() {
     local filesystem="$1"
     local storage_mode="$2"
@@ -123,7 +139,9 @@ mount_root_filesystem() {
 
         *)
             if [ "$storage_mode" = "raid1" ]; then
-                run_visible_cmd mount -o "noatime,discard=async" /dev/mapper/cryptroot-primary "${MOUNT_POINT}"
+                run_visible_cmd mount -o "noatime,discard=async" /dev/mapper/cryptroot-1 "${MOUNT_POINT}"
+            elif [ "$storage_mode" = "raid1-3disk" ]; then
+                run_visible_cmd mount -o "noatime,discard=async" /dev/mapper/cryptroot-1 "${MOUNT_POINT}"
             else
                 run_visible_cmd mount -o "noatime,discard=async" /dev/mapper/cryptroot "${MOUNT_POINT}"
             fi
@@ -152,6 +170,9 @@ format_and_mount_filesystems() {
     format_efi_partition "$EFI_PARTITION"
     if [ "$storage_mode" = "raid1" ]; then
         format_efi_partition "$EFI_PARTITION_2"
+    elif [ "$storage_mode" = "raid1-3disk" ]; then
+        format_efi_partition "$EFI_PARTITION_2"
+        format_efi_partition "$EFI_PARTITION_3"
     fi
 
     # Format and mount root
