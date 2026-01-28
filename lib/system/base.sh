@@ -90,7 +90,8 @@ install_microcode() {
 # Generate /etc/fstab
 generate_fstab() {
     print "Generating /etc/fstab..."
-    run_cmd genfstab -U "${MOUNT_POINT}" >> "${MOUNT_POINT}/etc/fstab"
+    log_cmd genfstab -U "${MOUNT_POINT}"
+    genfstab -U "${MOUNT_POINT}" >> "${MOUNT_POINT}/etc/fstab"
 }
 
 # Copy configuration files from installer to target system
