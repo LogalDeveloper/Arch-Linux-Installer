@@ -191,7 +191,7 @@ prompt() {
 
     print "$prompt_msg"
     read -r response
-    eval "$var_name='$response'"
+    eval "$var_name='${response//\'/\'\\\'\'}'"
 }
 
 # Prompt for secret input (no echo)
@@ -206,7 +206,7 @@ prompt_secret() {
     print "$prompt_msg"
     read -rs response
     echo
-    eval "$var_name='$response'"
+    eval "$var_name='${response//\'/\'\\\'\'}'"
 }
 
 # Prompt for password with confirmation
@@ -234,7 +234,7 @@ prompt_password() {
         return 1
     fi
 
-    eval "$var_name='$password'"
+    eval "$var_name='${password//\'/\'\\\'\'}'"
     unset password password_confirm
     return 0
 }
