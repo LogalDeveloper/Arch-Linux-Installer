@@ -38,7 +38,7 @@ create_boot_entry_single() {
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options lockdown=confidentiality rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot
+options lockdown=confidentiality intel_iommu=on amd_iommu=on iommu=force iommu.passthrough=0 rd.luks.name=${luks_uuid}=cryptroot rd.luks.options=discard root=/dev/mapper/cryptroot
 EOF
 }
 
@@ -54,7 +54,7 @@ create_boot_entry_raid1() {
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options lockdown=confidentiality rd.luks.name=${luks_uuid_1}=cryptroot-1 rd.luks.name=${luks_uuid_2}=cryptroot-2 rd.luks.options=${luks_uuid_1}=discard rd.luks.options=${luks_uuid_2}=discard root=/dev/mapper/cryptroot-1
+options lockdown=confidentiality intel_iommu=on amd_iommu=on iommu=force iommu.passthrough=0 rd.luks.name=${luks_uuid_1}=cryptroot-1 rd.luks.name=${luks_uuid_2}=cryptroot-2 rd.luks.options=${luks_uuid_1}=discard rd.luks.options=${luks_uuid_2}=discard root=/dev/mapper/cryptroot-1
 EOF
 }
 
@@ -72,7 +72,7 @@ create_boot_entry_raid1_3disk() {
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options lockdown=confidentiality rd.luks.name=${luks_uuid_1}=cryptroot-1 rd.luks.name=${luks_uuid_2}=cryptroot-2 rd.luks.name=${luks_uuid_3}=cryptroot-3 rd.luks.options=${luks_uuid_1}=discard rd.luks.options=${luks_uuid_2}=discard rd.luks.options=${luks_uuid_3}=discard root=/dev/mapper/cryptroot-1
+options lockdown=confidentiality intel_iommu=on amd_iommu=on iommu=force iommu.passthrough=0 rd.luks.name=${luks_uuid_1}=cryptroot-1 rd.luks.name=${luks_uuid_2}=cryptroot-2 rd.luks.name=${luks_uuid_3}=cryptroot-3 rd.luks.options=${luks_uuid_1}=discard rd.luks.options=${luks_uuid_2}=discard rd.luks.options=${luks_uuid_3}=discard root=/dev/mapper/cryptroot-1
 EOF
 }
 
