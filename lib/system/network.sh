@@ -65,7 +65,7 @@ enable_resolved() {
 prompt_install_wifi() {
     if confirm "Would you like to install iwd for Wi-Fi support?"; then
         print "Installing iwd..."
-        chroot_pacman_install iwd
+        chroot_pacman_install "${WIFI_PACKAGES[@]}"
         chroot_systemd_enable iwd.service
     fi
 }

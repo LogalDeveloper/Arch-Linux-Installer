@@ -167,6 +167,7 @@ format_and_mount_filesystems() {
     local storage_mode="$2"
 
     # Format EFI partition(s)
+    # shellcheck disable=SC2153
     format_efi_partition "$EFI_PARTITION"
     if [ "$storage_mode" = "raid1" ]; then
         format_efi_partition "$EFI_PARTITION_2"

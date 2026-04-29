@@ -83,8 +83,10 @@ create_boot_entry() {
     local storage_mode="$1"
 
     if [ "$storage_mode" = "raid1" ]; then
+        # shellcheck disable=SC2153
         create_boot_entry_raid1 "$LUKS_UUID" "$LUKS_UUID_2"
     elif [ "$storage_mode" = "raid1-3disk" ]; then
+        # shellcheck disable=SC2153
         create_boot_entry_raid1_3disk "$LUKS_UUID" "$LUKS_UUID_2" "$LUKS_UUID_3"
     else
         create_boot_entry_single "$LUKS_UUID"

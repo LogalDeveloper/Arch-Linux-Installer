@@ -111,7 +111,7 @@ retry() {
 
     log_cmd "$@"
     local attempt=1
-    while [ $attempt -le $max_attempts ]; do
+    while [ "$attempt" -le "$max_attempts" ]; do
         if "$@"; then
             return 0
         fi

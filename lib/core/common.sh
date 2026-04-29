@@ -28,9 +28,6 @@ readonly COLOR_CYAN='\033[0;36m'
 readonly COLOR_BG_GRAY='\033[48;5;236m'
 readonly COLOR_RESET='\033[0m'
 
-# Current installation phase (set by set_phase)
-CURRENT_PHASE=""
-
 # Step counter for progress indicator
 CURRENT_STEP=0
 TOTAL_STEPS=10
@@ -117,7 +114,6 @@ run_visible_cmd_in_chroot() {
 print_step() {
     local step="$1"
     CURRENT_STEP=$((CURRENT_STEP + 1))
-    CURRENT_PHASE="$step"
     echo ""
     echo -e "${COLOR_BLUE}=== [${CURRENT_STEP}/${TOTAL_STEPS}] ${step} ===${COLOR_RESET}"
 }
@@ -243,11 +239,16 @@ prompt_password() {
 # Arguments:
 #   $1 - menu title
 #   $@ - menu options (remaining arguments)
+# Arguments:
+#   $1 - variable name to store the selected option number
+#   $2 - menu title
 # Returns:
-#   Selected option number in MENU_SELECTION variable
+#   Selected option number in the provided variable
 prompt_menu() {
-    local title="$1"
-    shift
+    local var_name="$1"
+    local title="$2"
+    local selection
+    shift 2
     local options=("$@")
     local i=1
 
@@ -257,7 +258,8 @@ prompt_menu() {
         ((i++))
     done
 
-    read -r MENU_SELECTION
+    read -r selection
+    printf -v "$var_name" '%s' "$selection"
 }
 
 # Wait for user to press enter

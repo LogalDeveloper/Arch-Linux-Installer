@@ -76,10 +76,10 @@ install_microcode() {
 
     case "$vendor" in
         "intel")
-            chroot_pacman_install intel-ucode
+            chroot_pacman_install "${INTEL_MICROCODE_PACKAGES[@]}"
             ;;
         "amd")
-            chroot_pacman_install amd-ucode
+            chroot_pacman_install "${AMD_MICROCODE_PACKAGES[@]}"
             ;;
         *)
             print_warning "Unknown CPU vendor: ${vendor}. Please install microcode manually after installation, if available."

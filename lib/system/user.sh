@@ -25,6 +25,7 @@ prompt_username() {
     while true; do
         prompt "Please enter the username you'd like to use for your account:" USERNAME
 
+        # shellcheck disable=SC2153
         if validate_username "$USERNAME"; then
             return 0
         fi
@@ -85,6 +86,7 @@ set_user_password() {
 setup_user() {
     prompt_username
     prompt_display_name
+    # shellcheck disable=SC2153
     create_user "$USERNAME" "$DISPLAY_NAME"
     set_user_password "$USERNAME"
 }

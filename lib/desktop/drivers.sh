@@ -21,9 +21,11 @@
 
 # Prompt user for graphics driver selection and install
 prompt_install_graphics() {
-    prompt_menu "Would you like to install graphics drivers?" "Intel" "NVIDIA" "Skip"
+    local selection
 
-    case "$MENU_SELECTION" in
+    prompt_menu selection "Would you like to install graphics drivers?" "Intel" "NVIDIA" "Skip"
+
+    case "$selection" in
         1)
             print "Installing Intel graphics drivers..."
             chroot_pacman_install "${INTEL_PACKAGES[@]}"

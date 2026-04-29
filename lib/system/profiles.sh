@@ -44,28 +44,6 @@ list_profiles() {
     done
 }
 
-# Get packages for a profile
-# Arguments:
-#   $1 - profile key
-# Outputs:
-#   Package list to stdout
-get_profile_packages() {
-    local profile_key="$1"
-    local pkg_var="PROFILE_${profile_key}_PACKAGES[@]"
-    echo "${!pkg_var}"
-}
-
-# Get services for a profile
-# Arguments:
-#   $1 - profile key
-# Outputs:
-#   Service list to stdout
-get_profile_services() {
-    local profile_key="$1"
-    local svc_var="PROFILE_${profile_key}_SERVICES[@]"
-    echo "${!svc_var}"
-}
-
 # Check if profile requires KDE
 # Arguments:
 #   $1 - profile key
@@ -95,8 +73,10 @@ validate_profile_selection() {
 install_profile() {
     local profile_key="$1"
     local username="$2"
-    local packages
-    local services
+    local pkg_var="PROFILE_${profile_key}_PACKAGES[@]"
+    local svc_var="PROFILE_${profile_key}_SERVICES[@]"
+    local packages=("${!pkg_var}")
+    local services=("${!svc_var}")
 
     # Install KDE if required
     if profile_requires_kde "$profile_key"; then
@@ -105,10 +85,8 @@ install_profile() {
     fi
 
     # Get and install profile packages
-    packages=$(get_profile_packages "$profile_key")
-    if [ -n "$packages" ]; then
-        # shellcheck disable=SC2086
-        chroot_pacman_install $packages
+    if [ "${#packages[@]}" -gt 0 ]; then
+        chroot_pacman_install "${packages[@]}"
     fi
 
     # Add user to wireshark group if wireshark was installed
@@ -117,8 +95,7 @@ install_profile() {
     fi
 
     # Enable profile services
-    services=$(get_profile_services "$profile_key")
-    for service in $services; do
+    for service in "${services[@]}"; do
         chroot_systemd_enable "$service"
     done
 }
