@@ -44,19 +44,8 @@ if [[ "${#unique_packages[@]}" -eq 0 ]]; then
     exit 1
 fi
 
-missing_packages=()
-
-for package in "${unique_packages[@]}"; do
-    if ! pacman -Si -- "$package" > /dev/null 2>&1; then
-        missing_packages+=("$package")
-    fi
-done
-
-if [[ "${#missing_packages[@]}" -gt 0 ]]; then
-    printf 'The following packages were not found by exact name:\n' >&2
-    printf '  %s\n' "${missing_packages[@]}" >&2
-    exit 1
-fi
+printf 'Checking exact package names for %d packages\n' "${#unique_packages[@]}"
+pacman -Si -- "${unique_packages[@]}" > /dev/null
 
 printf 'Checking dependency resolution for %d packages from %d package arrays\n' "${#unique_packages[@]}" "$package_array_count"
 pacman -Sp --noconfirm -- "${unique_packages[@]}" > /dev/null
