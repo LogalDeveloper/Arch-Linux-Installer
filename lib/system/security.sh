@@ -29,10 +29,6 @@
 configure_initramfs() {
     print "Configuring initramfs..."
 
-    local default_line="HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)"
-    local new_line="HOOKS=(systemd autodetect microcode modconf kms keyboard sd-vconsole block sd-encrypt filesystems fsck)"
-
-    run_cmd_in_chroot sed -i "s|^${default_line}|${new_line}|" /etc/mkinitcpio.conf
     run_visible_cmd_in_chroot mkinitcpio -P
 }
 

@@ -187,6 +187,7 @@ main() {
     set_phase "System Configuration"
 
     setup_locale
+    copy_config_files
     configure_initramfs
     setup_bootloader "$STORAGE_MODE"
 
@@ -196,7 +197,6 @@ main() {
     set_phase "User Account Setup"
 
     setup_user
-    copy_config_files
 
     #---------------------------------------------------------------------------
     # Phase 7: Network Configuration
