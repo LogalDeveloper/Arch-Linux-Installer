@@ -20,7 +20,7 @@
 # - Runs bootctl install to set up EFI boot manager
 # - Creates boot entry with LUKS unlock parameters
 # - Supports both single-disk and RAID1 configurations
-# - Configures loader.conf timeout setting
+# - Configures loader.conf timeout and editor settings
 
 # Install systemd-boot bootloader
 install_bootloader() {
@@ -93,9 +93,10 @@ create_boot_entry() {
     fi
 }
 
-# Configure loader.conf timeout
+# Configure loader.conf
 configure_loader() {
-    run_cmd_in_chroot sed -i '/^#timeout 3/s/^#//' /boot/loader/loader.conf
+    run_cmd_in_chroot sed -i 's/^#timeout 3/timeout menu-hidden/' /boot/loader/loader.conf
+    run_cmd_in_chroot sh -c 'printf "\neditor no\n" >> /boot/loader/loader.conf'
 }
 
 # Full bootloader setup
