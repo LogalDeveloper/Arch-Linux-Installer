@@ -16,13 +16,14 @@ An automated Arch Linux installer which reflects my personal preferences.
 ### Defaults
 
 - **Full-disk encryption**: LUKS2 with modern key derivation
-- **Bootloader**: systemd-boot
+- **Boot**: systemd-boot with a signed Unified Kernel Image (UKI)
 - **Networking**: systemd-networkd and systemd-resolved
 - **Firewall**: nftables with default inbound deny (except SSH) and default outbound allow
 - **SSH**: OpenSSH configured with modern algorithms only
 - **USB**: USBGuard for device whitelisting
 - **Users**: Root account disabled; sudo via wheel group
 - **Hardware**: Automatic CPU microcode installation (Intel/AMD), SSD TRIM, fwupd for firmware updates
+- **Secure Boot**: Local signing keys are created and boot artifacts are signed; firmware enrollment is left to the user
 - **Performance**: TCP BBR congestion control
 - **Maintenance**: SMART monitoring, BTRFS scrub timer (when applicable)
 - **Mirror**: [My personal Arch Linux mirror](https://logal.dev/projects/arch-linux-mirror/)

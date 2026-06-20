@@ -32,6 +32,7 @@ source "${SCRIPT_DIR}/lib/disk/filesystem.sh"
 
 # Source system configuration modules
 source "${SCRIPT_DIR}/lib/system/base.sh"
+source "${SCRIPT_DIR}/lib/system/secureboot.sh"
 source "${SCRIPT_DIR}/lib/system/bootloader.sh"
 source "${SCRIPT_DIR}/lib/system/locale.sh"
 source "${SCRIPT_DIR}/lib/system/network.sh"
@@ -188,8 +189,13 @@ main() {
 
     setup_locale
     copy_config_files
+    prepare_uki_secure_boot "$STORAGE_MODE"
     configure_initramfs
+    sign_uki
+    remove_standalone_initramfs_images
     setup_bootloader "$STORAGE_MODE"
+    configure_fwupd_secure_boot
+    verify_secure_boot_artifacts
 
     #---------------------------------------------------------------------------
     # Phase 6: User Account Setup
@@ -237,6 +243,7 @@ main() {
     echo -e "\n\n\n\n\n"
     print_success "Installation complete!"
 
+    show_secure_boot_enrollment_instructions
     show_ssh_fingerprint
 }
 

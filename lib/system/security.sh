@@ -17,7 +17,7 @@
 # security.sh - Security hardening functions
 #
 # Applies security hardening to the installed system:
-# - Configures mkinitcpio with sd-encrypt hook for LUKS
+# - Runs mkinitcpio after boot artifact configuration
 # - Enables sudo access for wheel group
 # - Disables root account login
 # - Enables nftables firewall, smartd, and fstrim timer
@@ -25,11 +25,11 @@
 # - Installs custom CA certificates from certs directory to system trust store
 # - Sets up USBGuard to whitelist connected devices
 
-# Configure mkinitcpio hooks for encrypted root
+# Generate configured mkinitcpio artifacts.
 configure_initramfs() {
-    print "Configuring initramfs..."
+    print "Generating UKI..."
 
-    run_visible_cmd_in_chroot mkinitcpio -P
+    run_visible_cmd_in_chroot mkinitcpio -P -- --nopost
 }
 
 # Enable BTRFS scrub timer if using BTRFS filesystem
