@@ -167,6 +167,7 @@ verify_signed_artifacts_in_chroot() {
     local artifact_path
 
     for artifact_path in "$@"; do
+        # shellcheck disable=SC2016 # Variables are expanded by the inner chroot shell.
         run_cmd_in_chroot sh -c '
 esp_path="$1"
 artifact_path="$2"
