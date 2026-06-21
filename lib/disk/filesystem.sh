@@ -21,7 +21,7 @@
 # - Supports ext4, BTRFS, BTRFS with DUP, and BTRFS RAID1
 # - Uses xxhash checksum for BTRFS filesystems
 # - Mounts root with noatime and appropriate discard options
-# - Mounts EFI partition at /boot with restrictive permissions
+# - Mounts EFI partition at /efi with restrictive permissions
 
 # Format a partition as FAT32 (for EFI)
 # Arguments:
@@ -154,8 +154,10 @@ mount_root_filesystem() {
 #   $1 - EFI partition path
 mount_efi_partition() {
     local efi_partition="$1"
+    local efi_mount_target="${MOUNT_POINT}${EFI_MOUNT_POINT}"
 
-    run_visible_cmd mount --mkdir -o "fmask=0077,dmask=0077" "$efi_partition" "${MOUNT_POINT}/boot"
+    run_visible_cmd install -d -m 0700 "$efi_mount_target"
+    run_visible_cmd mount -o "$EFI_MOUNT_OPTIONS" "$efi_partition" "$efi_mount_target"
 }
 
 # Format and mount all filesystems

@@ -18,12 +18,14 @@
 #
 # Builds a UKI-only boot path:
 # - Creates file-backed sbctl keys in the target system
-# - Configures mkinitcpio/ukify to emit a UKI
+# - Configures mkinitcpio/ukify to emit a UKI on the ESP
 # - Signs and tracks the UKI with sbctl
 # - Signs other EFI binaries that systemd-boot/fwupd need
 # - Leaves firmware key enrollment to the user
 
-readonly UKI_OUTPUT_PATH="/boot/EFI/Linux/arch-linux.efi"
+readonly UKI_OUTPUT_PATH="${EFI_MOUNT_POINT}/EFI/Linux/arch-linux.efi"
+readonly ESP_SYSTEMD_BOOT_PATH="${EFI_MOUNT_POINT}/EFI/systemd/systemd-bootx64.efi"
+readonly ESP_FALLBACK_BOOT_PATH="${EFI_MOUNT_POINT}/EFI/BOOT/BOOTX64.EFI"
 readonly CMDLINE_DIR="/etc/cmdline.d"
 readonly SECURITY_CMDLINE="lockdown=confidentiality intel_iommu=on amd_iommu=on iommu=force iommu.passthrough=0"
 
@@ -166,18 +168,21 @@ verify_signed_artifacts_in_chroot() {
 
     for artifact_path in "$@"; do
         run_cmd_in_chroot sh -c '
-verify_output="$(env SYSTEMD_ESP_PATH=/boot sbctl verify "$1")" || {
+esp_path="$1"
+artifact_path="$2"
+
+verify_output="$(env SYSTEMD_ESP_PATH="$esp_path" sbctl verify "$artifact_path")" || {
     printf "%s\n" "$verify_output" >&2
     exit 1
 }
 
 printf "%s\n" "$verify_output"
 
-if ! printf "%s\n" "$verify_output" | grep -F -- "$1" | grep -Fq "is signed"; then
-    printf "Expected signed Secure Boot artifact was not reported as signed: %s\n" "$1" >&2
+if ! printf "%s\n" "$verify_output" | grep -F -- "$artifact_path" | grep -Fq "is signed"; then
+    printf "Expected signed Secure Boot artifact was not reported as signed: %s\n" "$artifact_path" >&2
     exit 1
 fi
-' sh "$artifact_path"
+' sh "$EFI_MOUNT_POINT" "$artifact_path"
     done
 }
 
@@ -188,8 +193,8 @@ verify_secure_boot_artifacts() {
     verify_signed_artifacts_in_chroot \
         "$UKI_OUTPUT_PATH" \
         /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed \
-        /boot/EFI/systemd/systemd-bootx64.efi \
-        /boot/EFI/BOOT/BOOTX64.EFI
+        "$ESP_SYSTEMD_BOOT_PATH" \
+        "$ESP_FALLBACK_BOOT_PATH"
 
     if [ -f "${MOUNT_POINT}/usr/lib/fwupd/efi/fwupdx64.efi.signed" ]; then
         verify_signed_artifacts_in_chroot /usr/lib/fwupd/efi/fwupdx64.efi.signed

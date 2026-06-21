@@ -25,17 +25,18 @@
 # Install systemd-boot bootloader
 install_bootloader() {
     print "Installing bootloader..."
-    run_visible_cmd_in_chroot bootctl --esp-path=/boot install
+    run_visible_cmd_in_chroot bootctl --esp-path="$EFI_MOUNT_POINT" install
 }
 
 # Configure loader.conf
 configure_loader() {
-    run_cmd_in_chroot sh -c 'cat > /boot/loader/loader.conf <<'"'"'EOF'"'"'
+    run_cmd_in_chroot install -d -m 0755 "${EFI_MOUNT_POINT}/loader"
+    run_cmd_in_chroot sh -c "cat > ${EFI_MOUNT_POINT}/loader/loader.conf" <<'EOF'
 timeout menu-hidden
 #console-mode keep
 
 editor no
-EOF'
+EOF
 }
 
 # Full bootloader setup
