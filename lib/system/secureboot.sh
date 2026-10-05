@@ -100,11 +100,6 @@ write_uki_mkinitcpio_preset() {
     run_cmd_in_chroot sh -c "! grep -q '^default_image=' /etc/mkinitcpio.d/linux.preset"
 }
 
-# Create the UKI output directory before mkinitcpio validates the preset path.
-prepare_uki_output_directory() {
-    run_cmd_in_chroot install -d -m 0755 "$(dirname "$UKI_OUTPUT_PATH")"
-}
-
 # Remove standalone initramfs images created by the stock package hook before the
 # installer replaces the preset. The unsigned kernel remains as mkinitcpio input.
 remove_standalone_initramfs_images() {
@@ -119,7 +114,6 @@ prepare_uki_secure_boot() {
 
     create_secure_boot_keys
     write_cmdline_dropins "$storage_mode"
-    prepare_uki_output_directory
     write_uki_mkinitcpio_preset
 }
 
