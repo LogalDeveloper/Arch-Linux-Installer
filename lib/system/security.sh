@@ -22,7 +22,6 @@
 # - Disables root account login
 # - Enables nftables firewall, smartd, and fstrim timer
 # - Configures OpenSSH with restricted settings
-# - Installs custom CA certificates from certs directory to system trust store
 # - Sets up USBGuard to whitelist connected devices
 
 # Generate configured mkinitcpio artifacts.
@@ -72,26 +71,6 @@ configure_ssh() {
 show_ssh_fingerprint() {
     print "Public SSH key fingerprint of this host:"
     run_visible_cmd_in_chroot ssh-keygen -lvf /etc/ssh/ssh_host_ed25519_key.pub
-}
-
-# Install custom CA certificates from certs directory
-install_ca_certificates() {
-    local certs=("${CA_CERTS_DIR}"/*.crt)
-
-    if [ ! -e "${certs[0]}" ]; then
-        print "No CA certificates found to install."
-        return
-    fi
-
-    for cert in "${certs[@]}"; do
-        local cert_name
-        cert_name=$(basename "$cert")
-        print "Adding ${cert_name} to system CA store..."
-
-        run_visible_cmd cp "$cert" "${MOUNT_POINT}/${cert_name}"
-        run_cmd_in_chroot trust anchor --store "/${cert_name}"
-        run_cmd_in_chroot rm "/${cert_name}"
-    done
 }
 
 # Configure USBGuard

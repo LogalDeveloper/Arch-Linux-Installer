@@ -219,7 +219,6 @@ main() {
 
     setup_security "$FILESYSTEM"
     configure_ssh "$USERNAME"
-    install_ca_certificates
 
     #---------------------------------------------------------------------------
     # Phase 9: Profile Installation

@@ -28,7 +28,6 @@ An automated Arch Linux installer which reflects my personal preferences.
 - **Maintenance**: SMART monitoring, BTRFS scrub timer (when applicable)
 - **Mirror**: [My personal Arch Linux mirror](https://logal.dev/projects/arch-linux-mirror/)
 - **DNS**: No fallback DNS (must be provided via DHCP or static config), LLMNR and mDNS disabled
-- **CA**: LogalNet internal CA pre-installed
 - **Logging**: Installation log saved to `/var/log/arch-install.log`
 
 ### KDE Defaults
@@ -57,7 +56,7 @@ cd Arch-Linux-Installer
 
 ## Customization
 
-Profiles and package lists are defined in `config/profiles.conf`. Custom CA certificates can be added to `files/certs/`.
+Profiles and package lists are defined in `config/profiles.conf`.
 
 ## Disclaimer
 
